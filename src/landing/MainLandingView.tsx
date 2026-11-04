@@ -85,6 +85,7 @@ function Cta({
   size = 'default',
   className = '',
   newTab = false,
+  arrow = true,
 }: {
   href: string;
   children: React.ReactNode;
@@ -93,6 +94,8 @@ function Cta({
   size?: 'default' | 'hero' | 'nav';
   className?: string;
   newTab?: boolean;
+  /** The ↗ after the label (off for in-app buttons like "Get started"). */
+  arrow?: boolean;
 }) {
   const sizeClass =
     size === 'hero'
@@ -117,9 +120,11 @@ function Cta({
       className={`inline-flex items-center justify-center gap-2.5 rounded-lg transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${sizeClass} ${colorClass} ${className}`}
     >
       <span>{children}</span>
-      <span aria-hidden="true" className="text-base font-bold leading-none">
-        ↗
-      </span>
+      {arrow && (
+        <span aria-hidden="true" className="text-base font-bold leading-none">
+          ↗
+        </span>
+      )}
     </a>
   );
 }
@@ -204,16 +209,17 @@ function Verdict({ value, highlight = false }: { value: string; highlight?: bool
 /**
  * Two builds of the same page (scripts/prerender-landing.mjs):
  *   waitlist  nanosyllabus.com: "Join Waitlist" (book a call)
- *   live      live.nanosyllabus.com, the app: "Sign in" (/login), and the
- *             closing "Start free" opens sign-up (/signup)
+ *   live      live.nanosyllabus.com, the app: "Get started" (no arrow) and
+ *             the closing "Start free" open sign-up (/signup), which goes on
+ *             to onboarding and the course picker
  */
 export type LandingVariant = 'waitlist' | 'live';
 
 export function MainLandingView({ variant = 'waitlist' }: { variant?: LandingVariant }) {
   const live = variant === 'live';
   const join = live
-    ? { href: '/login', newTab: false, label: 'Sign in' }
-    : { href: JOIN_HREF, newTab: JOIN_NEW_TAB, label: 'Join Waitlist' };
+    ? { href: '/signup', newTab: false, label: 'Get started', arrow: false }
+    : { href: JOIN_HREF, newTab: JOIN_NEW_TAB, label: 'Join Waitlist', arrow: true };
   const start = live ? { href: '/signup', newTab: false } : { href: JOIN_HREF, newTab: JOIN_NEW_TAB };
   return (
     <div
@@ -249,7 +255,7 @@ export function MainLandingView({ variant = 'waitlist' }: { variant?: LandingVar
               </a>
             ))}
           </nav>
-          <Cta href={join.href} size="nav" newTab={join.newTab}>
+          <Cta href={join.href} size="nav" newTab={join.newTab} arrow={join.arrow}>
             {join.label}
           </Cta>
         </div>
@@ -293,7 +299,7 @@ export function MainLandingView({ variant = 'waitlist' }: { variant?: LandingVar
               </p>
 
               <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-                <Cta href={join.href} blue size="hero" newTab={join.newTab}>
+                <Cta href={join.href} blue size="hero" newTab={join.newTab} arrow={join.arrow}>
                   {join.label}
                 </Cta>
                 <a
