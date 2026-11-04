@@ -150,7 +150,8 @@ export const phase1 = async ({ shots }) => {
     if (cs.position === 'fixed') {
       const r = el.getBoundingClientRect();
       const fullH = r.height >= innerHeight - 1 && r.top <= 0 ? DOC_H : r.height;
-      extra = { position: 'absolute', top: (r.top + scrollY) + 'px', left: (r.left + scrollX) + 'px', right: 'auto', bottom: 'auto', width: r.width + 'px', height: fullH + 'px', 'z-index': cs.zIndex === 'auto' ? '50' : cs.zIndex };
+      // the box is already where it should be on screen: pin it there and drop centring tricks
+      extra = { position: 'absolute', top: (r.top + scrollY) + 'px', left: (r.left + scrollX) + 'px', right: 'auto', bottom: 'auto', width: r.width + 'px', height: fullH + 'px', margin: '0px', 'margin-top': '0px', 'margin-right': '0px', 'margin-bottom': '0px', 'margin-left': '0px', transform: 'none', translate: 'none', 'max-width': 'none', 'max-height': 'none', 'z-index': cs.zIndex === 'auto' ? '50' : cs.zIndex };
     } else if (cs.position === 'sticky') {
       const r1 = el.getBoundingClientRect();
       const prev = el.style.getPropertyValue('position'), prio = el.style.getPropertyPriority('position');
@@ -179,7 +180,18 @@ export const phase1 = async ({ shots }) => {
         else k.setAttribute('style', st + `;transform:${sh}`);
       }
     }
-    if (cs.position === 'fixed') { fixedNodes.push(n); return document.createComment('fixed'); }
+    if (cs.position === 'fixed') {
+      // a modal <dialog> sits in the top layer over its ::backdrop
+      let modal = false; try { modal = el.matches(':modal'); } catch {}
+      if (modal) {
+        const bcs = getComputedStyle(el, '::backdrop');
+        const bd = document.createElement('div');
+        bd.setAttribute('data-pseudo', 'backdrop');
+        bd.setAttribute('style', `position:absolute;top:0px;left:0px;width:${Math.max(document.documentElement.scrollWidth, innerWidth)}px;height:${DOC_H}px;background-color:${bcs.backgroundColor};backdrop-filter:${bcs.backdropFilter};-webkit-backdrop-filter:${bcs.backdropFilter};opacity:${bcs.opacity};z-index:${cs.zIndex === 'auto' ? 49 : cs.zIndex}`);
+        fixedNodes.push(bd);
+      }
+      fixedNodes.push(n); return document.createComment('fixed');
+    }
     return n;
   };
 
