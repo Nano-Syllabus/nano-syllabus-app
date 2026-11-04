@@ -1,6 +1,7 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { ErrorBox, NotFound, Progress } from '../components/bits';
 import { useQuery } from '../lib/api';
+import { config } from '../lib/config';
 import { duration, plural, price } from '../lib/format';
 import { SITE, useSeo } from '../lib/seo';
 import type { CourseDetail, SubjectDetail } from '../lib/types';
@@ -13,6 +14,7 @@ export default function Subject() {
   );
   const { data: course } = useQuery<CourseDetail>(`course:${slug}`, `/api/courses/${encodeURIComponent(slug)}`);
   useSeo({ title: `${s?.title ?? 'Subject'} · ${SITE}`, noindex: true });
+  if (config.appCourses[slug]) return <Navigate to={`/app/courses/${slug}/learn`} replace />;
 
   if (error?.status === 404) return <NotFound />;
   if (error) return <main className="wrap page"><ErrorBox message={error.message} retry={() => location.reload()} /></main>;

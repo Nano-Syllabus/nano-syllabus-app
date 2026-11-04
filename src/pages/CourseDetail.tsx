@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { config } from '../lib/config';
 import { ErrorBox, NotFound, Progress } from '../components/bits';
 import { api, invalidate, setCached, useQuery } from '../lib/api';
 import { useAuth } from '../lib/auth';
@@ -28,11 +29,16 @@ export default function CourseDetail() {
   if (!c) return <main className="wrap page"><div className="skeleton" style={{ height: 240 }} /></main>;
 
   const firstSubject = c.subjects.find((s) => s.lessonCount > 0);
-  const startPath = firstSubject ? `/app/courses/${c.slug}/${firstSubject.slug}` : null;
+  // Courses with their own app (Electrical Machines → the brilliant-sample
+  // player) open it; admins may open any.
+  const appCourse = Boolean(config.appCourses[c.slug]);
+  const canOpen = c.owned || user?.role === 'admin';
+  const startPath = appCourse ? `/app/courses/${c.slug}/learn` : firstSubject ? `/app/courses/${c.slug}/${firstSubject.slug}` : null;
 
   async function start() {
     if (!user) return navigate(`/signup?next=${encodeURIComponent(`/courses/${slug}`)}`);
     if (!c) return;
+    if (appCourse && canOpen) return navigate(`/app/courses/${c.slug}/learn`);
     if (c.pricePaisa > 0 && !c.owned) return navigate(`/app/checkout/${c.slug}`);
     setBusy(true);
     setActionError('');
@@ -50,7 +56,7 @@ export default function CourseDetail() {
 
   const cta = !user
     ? c.pricePaisa === 0 ? 'Sign up to start free' : `Sign up to buy · ${price(c.pricePaisa)}`
-    : c.owned ? 'Start learning' : c.pricePaisa === 0 ? 'Start free' : `Buy course · ${price(c.pricePaisa)}`;
+    : appCourse && canOpen ? 'Open course' : c.owned ? 'Start learning' : c.pricePaisa === 0 ? 'Start free' : `Buy course · ${price(c.pricePaisa)}`;
 
   return (
     <main className="wrap page">
@@ -83,7 +89,7 @@ export default function CourseDetail() {
               return (
                 <li key={s.slug}>
                   {s.lessonCount > 0 && user ? (
-                    <Link className="list-item" to={`/app/courses/${c.slug}/${s.slug}`}>{body}</Link>
+                    <Link className="list-item" to={appCourse ? `/app/courses/${c.slug}/learn` : `/app/courses/${c.slug}/${s.slug}`}>{body}</Link>
                   ) : (
                     <div className="list-item">{body}</div>
                   )}

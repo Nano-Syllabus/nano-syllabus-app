@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
+import { config } from '../lib/config';
 import { ErrorBox, NotFound } from '../components/bits';
 import { prefetchLesson } from '../content/host';
 import { LessonBody } from '../content/LessonBody';
@@ -49,6 +50,7 @@ export default function Watch() {
     [l, key, subjectKey],
   );
 
+  if (l && config.appCourses[l.course.slug]) return <Navigate to={`/app/courses/${l.course.slug}/learn`} replace />;
   if (error?.status === 404) return <NotFound />;
   if (error) return <main className="wrap page"><ErrorBox message={error.message} retry={() => location.reload()} /></main>;
   if (!l) return <main className="wrap page"><div className="skeleton" style={{ aspectRatio: '16 / 9' }} /></main>;

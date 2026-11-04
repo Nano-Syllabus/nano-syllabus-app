@@ -9,6 +9,7 @@ import { Check, GraduationCap } from 'lucide-react';
 import { ErrorBox } from '../components/bits';
 import { api, invalidate, prefetch, useQuery } from '../lib/api';
 import { duration } from '../lib/format';
+import { config } from '../lib/config';
 import { SITE, useSeo } from '../lib/seo';
 import type { CourseCard as Card, Home } from '../lib/types';
 import {
@@ -36,7 +37,9 @@ export default function AppHome() {
   const done = data?.courses.reduce((n, c) => n + c.done, 0) ?? 0;
   const readiness = total ? Math.round((done / total) * 100) : 0;
   const today = data?.completedToday ?? 0;
-  const next = data?.next ?? [];
+  // Courses with their own app (Electrical Machines) get one row that opens it.
+  const appCourses = data?.courses.filter((c) => config.appCourses[c.slug]) ?? [];
+  const next = (data?.next ?? []).filter((n) => !config.appCourses[n.course.slug]);
   const first = next.find((n) => n.started) ?? next[0];
   const line = first ? `${first.subject.title}: ${first.title}` : data?.courses.length ? 'Every lesson done. Pick another course.' : 'Choose a course to get your next lesson.';
 
@@ -99,7 +102,7 @@ export default function AppHome() {
                 <div key={i} className="h-14 animate-pulse rounded-xl bg-bg-secondary" />
               ))}
             </div>
-          ) : next.length === 0 ? (
+          ) : next.length === 0 && appCourses.length === 0 ? (
             <div className="py-12 text-center">
               <p className="type-student-card-title text-text-primary">{data.courses.length ? 'All caught up' : 'No lessons yet'}</p>
               <p className="mt-1 text-sm text-text-muted">
@@ -111,6 +114,22 @@ export default function AppHome() {
             </div>
           ) : (
             <div className={hubRowsClass}>
+              {appCourses.map((c) => (
+                <div key={c.slug} className={hubRowClass}>
+                  <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:gap-8">
+                    <div className="w-full min-w-0 shrink-0 sm:w-[260px] md:w-[300px]">
+                      <p className="truncate text-[15px] font-bold text-text-primary sm:text-[16px]">{c.title}</p>
+                      <p className="mt-1 line-clamp-2 text-[14px] leading-6 text-[#4b5563] dark:text-text-secondary sm:text-[15px]">Every unit, with Sparky: watch, try, then the model answer.</p>
+                    </div>
+                    <div className="min-w-0 flex-1 text-[12px] text-text-muted">{c.level}</div>
+                  </div>
+                  <div className="flex shrink-0 items-center justify-end gap-6">
+                    <Link to={`/app/courses/${c.slug}/learn`} className={`${blueButtonClass} w-[104px]`}>
+                      Open
+                    </Link>
+                  </div>
+                </div>
+              ))}
               {next.map((n) => (
                 <div key={n.lessonId} className={hubRowClass}>
                   <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row sm:items-center sm:gap-8">

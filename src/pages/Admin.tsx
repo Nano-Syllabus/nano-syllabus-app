@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ErrorBox, NotFound } from '../components/bits';
 import { StatusBadge, when } from '../components/teach';
-import { api, invalidate, useQuery } from '../lib/api';
+import { api, invalidate, prefetch, useQuery } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { SITE, useSeo } from '../lib/seo';
 import type { StaffMember, Submission } from '../lib/types';
@@ -59,16 +59,20 @@ function Submissions({ status }: { status: string }) {
 }
 
 function Teachers() {
+  const { user } = useAuth();
   const { data, error } = useQuery<{ staff: StaffMember[] }>('admin:staff', '/api/admin/staff');
   const [email, setEmail] = useState('');
+  const [role, setRoleChoice] = useState<'teacher' | 'admin'>('teacher');
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
-  const setRole = async (e: string, role: 'teacher' | 'student') => {
+  const words = { student: 'a student', teacher: 'a teacher', admin: 'an admin' } as const;
+  const setRole = async (e: string, r: 'student' | 'teacher' | 'admin') => {
     setMsg(null);
     try {
-      const r = await api<{ user: { name: string; email: string } }>('/api/admin/staff', { method: 'POST', body: { email: e, role } });
-      setMsg({ ok: true, text: `${r.user.name} <${r.user.email}> is now ${role === 'teacher' ? 'a teacher' : 'a student'}.` });
+      const res = await api<{ user: { name: string; email: string } }>('/api/admin/staff', { method: 'POST', body: { email: e, role: r } });
+      setMsg({ ok: true, text: `${res.user.name} <${res.user.email}> is now ${words[r]}.` });
       setEmail('');
       invalidate('admin:staff');
+      await prefetch('admin:staff', '/api/admin/staff');
     } catch (err) {
       setMsg({ ok: false, text: (err as Error).message });
     }
@@ -76,11 +80,15 @@ function Teachers() {
   return (
     <div className="stack">
       <div className="card stack">
-        <b>Add a teacher</b>
-        <p className="muted small" style={{ margin: 0 }}>They sign up on the site first, then you add the email they used.</p>
-        <form className="row" style={{ flexWrap: 'wrap' }} onSubmit={(e) => { e.preventDefault(); void setRole(email.trim(), 'teacher'); }}>
-          <input className="input" type="email" required placeholder="teacher@example.com" value={email} onChange={(e) => setEmail(e.target.value)} style={{ flex: 1, minWidth: 200 }} aria-label="Teacher email" />
-          <button className="btn btn-primary">Make teacher</button>
+        <b>Add a teacher or admin</b>
+        <p className="muted small" style={{ margin: 0 }}>They sign up on the site first (email or Google), then you add the email they used. Admins can review courses, see every submission and make other admins.</p>
+        <form className="row" style={{ flexWrap: 'wrap' }} onSubmit={(e) => { e.preventDefault(); if (role === 'admin' && !confirm(`Make ${email.trim()} an admin? Admins can publish courses and make other admins.`)) return; void setRole(email.trim(), role); }}>
+          <input className="input" type="email" required placeholder="name@example.com" value={email} onChange={(e) => setEmail(e.target.value)} style={{ flex: 1, minWidth: 200 }} aria-label="Email" />
+          <select className="input" style={{ width: 'auto' }} value={role} onChange={(e) => setRoleChoice(e.target.value as 'teacher' | 'admin')} aria-label="Role">
+            <option value="teacher">Teacher</option>
+            <option value="admin">Admin</option>
+          </select>
+          <button className="btn btn-primary">Save</button>
         </form>
         {msg && <div className={msg.ok ? 'alert alert-success' : 'alert alert-error'}>{msg.text}</div>}
       </div>
@@ -94,10 +102,23 @@ function Teachers() {
                 {m.role} · {m.courses} courses · {m.submissions} pushes{m.lastPush ? ` · last ${when(m.lastPush)}` : ''}
               </span>
             </span>
-            {m.role === 'teacher' && (
-              <button className="btn btn-ghost" onClick={() => confirm(`Remove ${m.name} as a teacher? Their live courses stay up.`) && void setRole(m.email, 'student')}>
-                Remove
-              </button>
+            {m.email.toLowerCase() === user?.email.toLowerCase() ? (
+              <span className="muted small">you</span>
+            ) : (
+              <select
+                className="input"
+                style={{ width: 'auto' }}
+                value={m.role}
+                aria-label={`Role of ${m.name}`}
+                onChange={(e) => {
+                  const r = e.target.value as 'student' | 'teacher' | 'admin';
+                  if (confirm(`Make ${m.name} ${words[r]}?`)) void setRole(m.email, r);
+                }}
+              >
+                <option value="teacher">Teacher</option>
+                <option value="admin">Admin</option>
+                <option value="student">Student (remove)</option>
+              </select>
             )}
           </div>
         ))}

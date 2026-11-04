@@ -20,6 +20,7 @@ const TeachPreview = lazy(() => import('./pages/TeachPreview'));
 const Admin = lazy(() => import('./pages/Admin'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
 const MyCourses = lazy(() => import('./pages/MyCourses'));
+const AppCourse = lazy(() => import('./pages/AppCourse'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -60,6 +61,7 @@ export function App() {
             <Route path="courses/:slug" element={<CourseDetail />} />
             <Route path="app" element={authed(<AppHome />)} />
             <Route path="app/courses" element={authed(<MyCourses />)} />
+            <Route path="app/courses/:slug/learn" element={authed(<AppCourse />)} />
             <Route path="app/checkout/:slug" element={authed(<Checkout />)} />
             <Route path="app/payment/result" element={authed(<PaymentResult />)} />
             <Route path="app/courses/:slug/:subject" element={authed(<Subject />)} />
