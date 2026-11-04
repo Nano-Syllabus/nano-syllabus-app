@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0b0d12" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <!-- The server replaces everything between the seo markers per route
+         (title, description, canonical, Open Graph, JSON-LD). These defaults
+         are what dev mode and unknown routes get. -->
+    <!--seo:start-->
+    <title>Nano Syllabus — learn your syllabus, one short lesson at a time</title>
+    <meta name="description" content="Short video lessons and interactive explainers for IOE and Nepali university syllabi. Learn each subject topic by topic." />
+    <meta property="og:site_name" content="Nano Syllabus" />
+    <meta property="og:type" content="website" />
+    <!--seo:end-->
+  </head>
+  <body>
+    <!-- #root holds crawlable server HTML until React mounts over it. -->
+    <div id="root"><!--ssr--></div>
+    <!--data-->
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

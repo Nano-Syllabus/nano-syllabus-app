@@ -1,0 +1,7 @@
+# Static fallback. In production the Go server answers /robots.txt itself
+# (with the real sitemap URL), so this file only applies to static hosting.
+User-agent: *
+Allow: /
+Disallow: /app/
+Disallow: /api/
+Sitemap: /sitemap.xml
