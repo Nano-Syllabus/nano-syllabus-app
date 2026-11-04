@@ -15,14 +15,14 @@ export default function Subject() {
   useSeo({ title: `${s?.title ?? 'Subject'} · ${SITE}`, noindex: true });
 
   if (error?.status === 404) return <NotFound />;
-  if (error) return <main className="container page"><ErrorBox message={error.message} retry={() => location.reload()} /></main>;
-  if (!s) return <main className="container page narrow"><div className="skeleton" style={{ height: 300 }} /></main>;
+  if (error) return <main className="wrap page"><ErrorBox message={error.message} retry={() => location.reload()} /></main>;
+  if (!s) return <main className="wrap page narrow"><div className="skeleton" style={{ height: 300 }} /></main>;
 
   const done = s.lessons.filter((l) => l.completed).length;
   const next = s.lessons.find((l) => !l.completed && (s.owned || l.isPreview));
 
   return (
-    <main className="container page narrow stack">
+    <main className="wrap page narrow stack">
       <div className="row small">
         <Link to={`/courses/${slug}`} className="muted">{s.course.title}</Link>
         <span className="muted">/</span>

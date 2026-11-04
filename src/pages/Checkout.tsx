@@ -43,8 +43,8 @@ export default function Checkout() {
   useSeo({ title: `Checkout · ${SITE}`, noindex: true });
 
   if (error?.status === 404) return <NotFound />;
-  if (error) return <main className="container page"><ErrorBox message={error.message} /></main>;
-  if (!c) return <main className="container page narrow"><div className="skeleton" style={{ height: 320 }} /></main>;
+  if (error) return <main className="wrap page"><ErrorBox message={error.message} /></main>;
+  if (!c) return <main className="wrap page narrow"><div className="skeleton" style={{ height: 320 }} /></main>;
   if (c.owned || c.pricePaisa === 0) return <Navigate to={`/courses/${c.slug}`} replace />;
 
   const available = prov?.providers ?? ['esewa'];
@@ -61,7 +61,7 @@ export default function Checkout() {
   }
 
   return (
-    <main className="container page narrow stack">
+    <main className="wrap page narrow stack">
       <Link to={`/courses/${c.slug}`} className="muted small">← Back to course</Link>
       <h1>Checkout</h1>
 

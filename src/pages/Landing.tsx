@@ -17,7 +17,7 @@ export default function Landing() {
 
   return (
     <main>
-      <section className="hero container">
+      <section className="hero wrap">
         <h1>Learn your syllabus, one short lesson at a time</h1>
         <p className="lead">
           Animated video lessons and interactive explainers that follow your university syllabus topic by topic,
@@ -30,7 +30,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="container">
+      <section className="wrap">
         <div className="features">
           <div className="card">
             <h3>Made from your syllabus</h3>
@@ -47,14 +47,14 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="container" style={{ paddingBottom: 56 }}>
+      <section className="wrap" style={{ paddingBottom: 56 }}>
         <div className="row" style={{ marginBottom: 16 }}>
           <h2 style={{ margin: 0 }}>Courses</h2>
           <span className="spacer" />
           <Link to="/courses" className="small">See all</Link>
         </div>
         {data ? (
-          <div className="grid">
+          <div className="card-grid">
             {data.courses.slice(0, 6).map((c) => <CourseCard key={c.slug} c={c} />)}
           </div>
         ) : (

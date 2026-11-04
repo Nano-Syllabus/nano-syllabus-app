@@ -1,8 +1,8 @@
-import { Suspense, useCallback, useEffect, useRef, useState, type ComponentType } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ErrorBox, NotFound } from '../components/bits';
-import { loadArticle, loadLesson, prefetchLesson, type LessonProps } from '../content/host';
-import { interactives } from '../content/registry';
+import { prefetchLesson } from '../content/host';
+import { LessonBody } from '../content/LessonBody';
 import { api, invalidate, prefetch, setCached, useQuery } from '../lib/api';
 import { duration } from '../lib/format';
 import { SITE, useSeo } from '../lib/seo';
@@ -50,11 +50,11 @@ export default function Watch() {
   );
 
   if (error?.status === 404) return <NotFound />;
-  if (error) return <main className="container page"><ErrorBox message={error.message} retry={() => location.reload()} /></main>;
-  if (!l) return <main className="container page"><div className="skeleton" style={{ aspectRatio: '16 / 9' }} /></main>;
+  if (error) return <main className="wrap page"><ErrorBox message={error.message} retry={() => location.reload()} /></main>;
+  if (!l) return <main className="wrap page"><div className="skeleton" style={{ aspectRatio: '16 / 9' }} /></main>;
 
   return (
-    <main className="container page">
+    <main className="wrap page">
       <div className="split">
         <div className="stack">
           <div className="row small">
@@ -71,12 +71,8 @@ export default function Watch() {
                 <Link className="btn btn-primary" to={`/app/checkout/${l.course.slug}`}>Unlock the course</Link>
               </div>
             </div>
-          ) : l.kind === 'video' ? (
-            <Player key={l.id} lesson={l} onSave={save} onEnded={() => l.nextId && navigate(`/app/watch/${l.nextId}`)} />
-          ) : l.kind === 'article' ? (
-            <Article key={l.id} lesson={l} onSave={save} />
           ) : (
-            <Interactive key={l.id} lesson={l} onSave={save} />
+            <LessonBody lesson={l} onSave={save} onEnded={() => l.nextId && navigate(`/app/watch/${l.nextId}`)} />
           )}
 
           <div className="row">
@@ -120,145 +116,5 @@ export default function Watch() {
         </aside>
       </div>
     </main>
-  );
-}
-
-function Player({ lesson, onSave, onEnded }: { lesson: Lesson; onSave: (p: number, done: boolean) => void; onEnded: () => void }) {
-  const ref = useRef<HTMLVideoElement>(null);
-
-  // Resume where the learner left off (unless they had finished it).
-  useEffect(() => {
-    const v = ref.current;
-    if (!v || lesson.completed || !lesson.positionSeconds) return;
-    const seek = () => {
-      if (lesson.positionSeconds < v.duration - 5) v.currentTime = lesson.positionSeconds;
-    };
-    if (v.readyState >= 1) seek();
-    else v.addEventListener('loadedmetadata', seek, { once: true });
-  }, [lesson.id]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Save on leaving the page too.
-  useEffect(() => {
-    const v = ref.current;
-    return () => {
-      if (v && v.currentTime > 0) onSave(v.currentTime, v.duration > 0 && v.currentTime / v.duration > 0.9);
-    };
-  }, [onSave]);
-
-  return (
-    <div className="player">
-      <video
-        ref={ref}
-        src={lesson.videoUrl}
-        poster={lesson.posterUrl || undefined}
-        controls
-        playsInline
-        preload="metadata"
-        autoPlay
-        onTimeUpdate={(e) => {
-          const v = e.currentTarget;
-          if (v.duration && v.currentTime / v.duration > 0.9 && !lesson.completed) onSave(v.currentTime, true);
-          else onSave(v.currentTime, false);
-        }}
-        onPause={(e) => onSave(e.currentTarget.currentTime, false)}
-        onEnded={(e) => {
-          onSave(e.currentTarget.duration, true);
-          onEnded();
-        }}
-      />
-    </div>
-  );
-}
-
-function Unavailable({ message = "This lesson isn't available in this version of the app yet.", retry }: { message?: string; retry?: () => void }) {
-  return (
-    <div className="locked">
-      <div className="stack">
-        <p className="muted">{message}</p>
-        {retry && <button className="btn" onClick={retry}>Try again</button>}
-      </div>
-    </div>
-  );
-}
-
-// An interactive lesson comes either from a content release (moduleUrl, loaded
-// at runtime) or from code built into this app (contentRef → registry.ts).
-function Interactive({ lesson, onSave }: { lesson: Lesson; onSave: (p: number, done: boolean) => void }) {
-  const [C, setC] = useState<ComponentType<LessonProps> | null>(null);
-  const [failed, setFailed] = useState(false);
-  const [attempt, setAttempt] = useState(0);
-  useEffect(() => {
-    if (!lesson.moduleUrl) return;
-    let live = true;
-    setFailed(false);
-    loadLesson(lesson.moduleUrl, lesson.cssUrls).then(
-      (c) => live && setC(() => c),
-      () => live && setFailed(true),
-    );
-    return () => {
-      live = false;
-    };
-  }, [lesson.moduleUrl, lesson.cssUrls, attempt]);
-
-  const props: LessonProps = {
-    lesson: { id: lesson.id, title: lesson.title, durationSeconds: lesson.durationSeconds },
-    onComplete: () => onSave(lesson.durationSeconds, true),
-    onProgress: (f) => onSave(f * (lesson.durationSeconds || 100), false),
-  };
-  const skeleton = <div className="skeleton" style={{ aspectRatio: '16 / 9' }} />;
-
-  if (lesson.moduleUrl) {
-    if (failed) return <Unavailable message="This lesson didn't load. Check your connection." retry={() => setAttempt((n) => n + 1)} />;
-    return C ? <C {...props} /> : skeleton;
-  }
-  const Built = lesson.contentRef ? interactives[lesson.contentRef] : undefined;
-  if (!Built) return <Unavailable />;
-  return (
-    <Suspense fallback={skeleton}>
-      <Built {...props} />
-    </Suspense>
-  );
-}
-
-// A reading: pre-rendered HTML (Markdown + math) from a content release.
-// Reaching the end of it counts as finishing it.
-function Article({ lesson, onSave }: { lesson: Lesson; onSave: (p: number, done: boolean) => void }) {
-  const [html, setHtml] = useState<string | null>(null);
-  const [failed, setFailed] = useState(false);
-  const [attempt, setAttempt] = useState(0);
-  const end = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!lesson.htmlUrl) return;
-    let live = true;
-    setFailed(false);
-    loadArticle(lesson.htmlUrl, lesson.cssUrls).then(
-      (h) => live && setHtml(h),
-      () => live && setFailed(true),
-    );
-    return () => {
-      live = false;
-    };
-  }, [lesson.htmlUrl, lesson.cssUrls, attempt]);
-  useEffect(() => {
-    const el = end.current;
-    if (!el || !html || lesson.completed) return;
-    const io = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) {
-        onSave(lesson.durationSeconds, true);
-        io.disconnect();
-      }
-    });
-    io.observe(el);
-    return () => io.disconnect();
-  }, [html, lesson.completed, lesson.durationSeconds, onSave]);
-
-  if (!lesson.htmlUrl) return <Unavailable />;
-  if (failed) return <Unavailable message="This reading didn't load. Check your connection." retry={() => setAttempt((n) => n + 1)} />;
-  if (html == null) return <div className="skeleton" style={{ height: 320 }} />;
-  return (
-    <div className="card">
-      <article className="nk-article" dangerouslySetInnerHTML={{ __html: html }} />
-      <div ref={end} aria-hidden style={{ height: 1 }} />
-    </div>
   );
 }

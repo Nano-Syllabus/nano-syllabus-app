@@ -1,0 +1,138 @@
+/*
+ * The landing page's stylesheet. Only landing.html loads it; the app keeps
+ * src/styles.css. These are the parts of nano_sylabus's app/globals.css and
+ * components/landing-template-view.module.css that MainLandingView uses, so
+ * the page renders exactly as it does there.
+ */
+@import "tailwindcss" source(none);
+@source "./MainLandingView.tsx";
+
+/* next/font/local → the same @font-face rules it generates (same files, from
+   nano_sylabus/assets/fonts), including its metric-matched Arial fallbacks,
+   which also draw the glyphs these fonts lack (the ↗ and ▶ on buttons). */
+@font-face {
+  font-family: dmSans;
+  src: url("./fonts/dm-sans-latin-100-1000-normal.woff2") format("woff2");
+  font-display: swap;
+  font-weight: 100 1000;
+  font-style: normal;
+}
+@font-face {
+  font-family: "dmSans Fallback";
+  src: local("Arial");
+  ascent-override: 94.36%;
+  descent-override: 29.49%;
+  line-gap-override: 0%;
+  size-adjust: 105.13%;
+}
+@font-face {
+  font-family: manrope;
+  src: url("./fonts/manrope-latin-200-800-normal.woff2") format("woff2");
+  font-display: swap;
+  font-weight: 200 800;
+  font-style: normal;
+}
+@font-face {
+  font-family: "manrope Fallback";
+  src: local("Arial");
+  ascent-override: 106.45%;
+  descent-override: 29.96%;
+  line-gap-override: 0%;
+  size-adjust: 100.14%;
+}
+@font-face {
+  font-family: inter;
+  src: url("./fonts/inter-latin-100-900-normal.woff2") format("woff2");
+  font-display: swap;
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+/* globals.css @theme inline: nano_sylabus's radius scale (rounded-lg = 16px). */
+@theme inline {
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --font-inter: inter;
+  --bg-primary: #ffffff;
+  --text-primary: #000000;
+  --color-border: rgba(0, 0, 0, 0.12);
+}
+
+.font-lp-dm {
+  font-family: dmSans, "dmSans Fallback";
+}
+.font-lp-manrope {
+  font-family: manrope, "manrope Fallback";
+}
+
+/* globals.css @layer base */
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  :where(button, [role="button"], input[type="submit"], input[type="button"], a):not(:disabled):not([aria-disabled="true"]):not([data-no-press]) {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :where(button, [role="button"], input[type="submit"], input[type="button"], a):not(:disabled):not([aria-disabled="true"]):not([data-no-press]):active {
+    transform: scale(0.97);
+    filter: brightness(0.94);
+    transition-duration: 60ms;
+  }
+
+  :where(summary):active {
+    opacity: 0.7;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :where(button, [role="button"], input[type="submit"], input[type="button"], a):active {
+      transform: none;
+    }
+  }
+
+  html {
+    scroll-behavior: smooth;
+    font-family: var(--font-sans);
+    background-color: var(--bg-primary);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    min-height: 100vh;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+  }
+
+  ::selection {
+    background-color: var(--text-primary);
+    color: var(--bg-primary);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* landing-template-view.module.css .original */
+.lp-original {
+  background-color: var(--lp-background) !important;
+  color: var(--lp-ink);
+}
+.lp-original > header {
+  background-color: var(--lp-background) !important;
+}
+.lp-original [class*="text-[#1c1e1a]"] {
+  color: var(--lp-ink);
+}
