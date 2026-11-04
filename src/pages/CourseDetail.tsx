@@ -24,8 +24,8 @@ export default function CourseDetail() {
   });
 
   if (error?.status === 404) return <NotFound />;
-  if (error) return <main className="container page"><ErrorBox message={error.message} retry={() => location.reload()} /></main>;
-  if (!c) return <main className="container page"><div className="skeleton" style={{ height: 240 }} /></main>;
+  if (error) return <main className="wrap page"><ErrorBox message={error.message} retry={() => location.reload()} /></main>;
+  if (!c) return <main className="wrap page"><div className="skeleton" style={{ height: 240 }} /></main>;
 
   const firstSubject = c.subjects.find((s) => s.lessonCount > 0);
   const startPath = firstSubject ? `/app/courses/${c.slug}/${firstSubject.slug}` : null;
@@ -53,7 +53,7 @@ export default function CourseDetail() {
     : c.owned ? 'Start learning' : c.pricePaisa === 0 ? 'Start free' : `Buy course · ${price(c.pricePaisa)}`;
 
   return (
-    <main className="container page">
+    <main className="wrap page">
       <div className="split">
         <div className="stack">
           <div className="row small">

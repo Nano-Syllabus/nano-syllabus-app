@@ -1,0 +1,62 @@
+# Typecheck + build on every push and pull request; deploy dist/ to the VPS on
+# pushes to main. The Go server picks up a new index.html within 2 seconds,
+# so no restart is needed.
+#
+# Repository settings → Secrets and variables → Actions:
+#   secret   VPS_SSH_KEY      private key whose public half is in root's authorized_keys on the VPS
+#   secret   VPS_KNOWN_HOSTS  output of: ssh-keyscan -t ed25519,rsa 173.212.214.79
+#   variable VPS_HOST         root@173.212.214.79
+name: client
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-client
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
+
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: SSH key
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          printf '%s\n' "${{ secrets.VPS_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+      - name: Upload and verify
+        env:
+          VPS: ${{ vars.VPS_HOST }}
+        run: |
+          SSH="ssh -i ~/.ssh/deploy -o BatchMode=yes"
+          # Hashed assets first, then the HTML that points at them, so no page
+          # ever references a file that is not there yet. Old assets are kept
+          # (no --delete on assets/) for tabs still open on the previous build.
+          rsync -az -e "$SSH" dist/assets/ "$VPS:/opt/ns-app/client/assets/"
+          rsync -az -e "$SSH" --exclude assets/ dist/ "$VPS:/opt/ns-app/client/"
+          $SSH "$VPS" 'chown -R nsapp:nsapp /opt/ns-app/client && curl -fsS -o /dev/null http://127.0.0.1:8090/login && echo "✓ client live"'

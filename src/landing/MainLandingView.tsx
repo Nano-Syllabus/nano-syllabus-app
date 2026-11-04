@@ -201,7 +201,20 @@ function Verdict({ value, highlight = false }: { value: string; highlight?: bool
  * nanosyllabus.com's own landing page. Its words live here rather than in
  * /admin/sites: faculty and exam sites keep the editor-driven `LandingView`.
  */
-export function MainLandingView() {
+/**
+ * Two builds of the same page (scripts/prerender-landing.mjs):
+ *   waitlist  nanosyllabus.com: "Join Waitlist" (book a call)
+ *   live      live.nanosyllabus.com, the app: "Sign in" (/login), and the
+ *             closing "Start free" opens sign-up (/signup)
+ */
+export type LandingVariant = 'waitlist' | 'live';
+
+export function MainLandingView({ variant = 'waitlist' }: { variant?: LandingVariant }) {
+  const live = variant === 'live';
+  const join = live
+    ? { href: '/login', newTab: false, label: 'Sign in' }
+    : { href: JOIN_HREF, newTab: JOIN_NEW_TAB, label: 'Join Waitlist' };
+  const start = live ? { href: '/signup', newTab: false } : { href: JOIN_HREF, newTab: JOIN_NEW_TAB };
   return (
     <div
       data-landing-template="original"
@@ -236,8 +249,8 @@ export function MainLandingView() {
               </a>
             ))}
           </nav>
-          <Cta href={JOIN_HREF} size="nav" newTab={JOIN_NEW_TAB}>
-            Join Waitlist
+          <Cta href={join.href} size="nav" newTab={join.newTab}>
+            {join.label}
           </Cta>
         </div>
       </header>
@@ -280,8 +293,8 @@ export function MainLandingView() {
               </p>
 
               <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-                <Cta href={JOIN_HREF} blue size="hero" newTab={JOIN_NEW_TAB}>
-                  Join Waitlist
+                <Cta href={join.href} blue size="hero" newTab={join.newTab}>
+                  {join.label}
                 </Cta>
                 <a
                   href={FREE_DEMO_URL}
@@ -493,7 +506,7 @@ export function MainLandingView() {
               Try your first micro-topic today. If it doesn&apos;t help, you&apos;ve lost ten minutes.
             </p>
             <div className="mt-9">
-              <Cta href={JOIN_HREF} size="hero" newTab={JOIN_NEW_TAB}>
+              <Cta href={start.href} size="hero" newTab={start.newTab}>
                 Start free
               </Cta>
             </div>

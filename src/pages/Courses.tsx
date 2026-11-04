@@ -26,7 +26,7 @@ export default function Courses() {
   }, [data, q, filter]);
 
   return (
-    <main className="container page">
+    <main className="wrap page">
       <h1>All courses</h1>
       <div className="row" style={{ margin: '16px 0 24px' }}>
         <input
@@ -47,7 +47,7 @@ export default function Courses() {
       {error && <ErrorBox message={error.message} retry={() => location.reload()} />}
       {!data && !error && <CardSkeletons n={6} />}
       {data && shown.length === 0 && <p className="muted">No courses match.</p>}
-      {data && <div className="grid">{shown.map((c) => <CourseCard key={c.slug} c={c} />)}</div>}
+      {data && <div className="card-grid">{shown.map((c) => <CourseCard key={c.slug} c={c} />)}</div>}
     </main>
   );
 }

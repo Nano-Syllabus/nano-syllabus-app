@@ -10,9 +10,11 @@ const KEY = 'ns-user';
 type AuthState = {
   user: User | null;
   ready: boolean; // true once the server has confirmed who we are
-  login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
+  signup: (name: string, email: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
+  /** Replace the signed-in user after a profile change (onboarding). */
+  setUser: (u: User) => void;
 };
 
 const Ctx = createContext<AuthState | null>(null);
@@ -60,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (email: string, password: string) => {
       const { user: u } = await api<{ user: User }>('/api/auth/login', { method: 'POST', body: { email, password } });
       signedIn(u);
+      return u;
     },
     [signedIn],
   );
@@ -68,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (name: string, email: string, password: string) => {
       const { user: u } = await api<{ user: User }>('/api/auth/signup', { method: 'POST', body: { name, email, password } });
       signedIn(u);
+      return u;
     },
     [signedIn],
   );
@@ -79,7 +83,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
-  return <Ctx.Provider value={{ user, ready, login, signup, logout }}>{children}</Ctx.Provider>;
+  const replaceUser = useCallback((u: User) => {
+    remember(u);
+    setUser(u);
+  }, []);
+
+  return <Ctx.Provider value={{ user, ready, login, signup, logout, setUser: replaceUser }}>{children}</Ctx.Provider>;
 }
 
 export function useAuth() {

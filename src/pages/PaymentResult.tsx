@@ -29,7 +29,7 @@ export default function PaymentResult() {
   const first = course?.subjects.find((s) => s.lessonCount > 0);
 
   return (
-    <main className="container page narrow stack">
+    <main className="wrap page narrow stack">
       <div className={`alert ${copy.cls}`}>
         <h1 style={{ fontSize: '1.5rem', margin: '0 0 6px' }}>{copy.title}</h1>
         <p style={{ margin: 0 }}>{copy.body}</p>

@@ -3,10 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0b0d12" media="(prefers-color-scheme: dark)" />
-    <meta name="color-scheme" content="light dark" />
-    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#ffffff" />
+    <!-- Theme before first paint: the sidebar toggle's choice (ns-theme-v2, the
+         old app's key), light by default. -->
+    <script>(function(){try{var v=localStorage.getItem('ns-theme-v2');if(v==='system')v=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';if(v!=='dark')v='light';document.documentElement.setAttribute('data-theme',v);document.documentElement.style.colorScheme=v;}catch(e){document.documentElement.setAttribute('data-theme','light');}})();</script>
+    <link rel="icon" href="/nanologo-76.png" type="image/png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <!-- The server replaces everything between the seo markers per route
          (title, description, canonical, Open Graph, JSON-LD). These defaults

@@ -48,7 +48,7 @@ export default defineConfig({
     cssCodeSplit: true,
     rollupOptions: {
       // landing.html is nanosyllabus.com's landing page (pre-rendered, no JS).
-      input: { app: 'index.html', landing: 'landing.html' },
+      input: { app: 'index.html', landing: 'landing.html', frame: 'lesson-frame.html' },
       output: {
         // React + router change rarely: one long-cached vendor chunk.
         manualChunks: { vendor: ['react', 'react-dom', 'react-router-dom'] },

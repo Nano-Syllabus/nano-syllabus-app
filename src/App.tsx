@@ -14,6 +14,12 @@ const Checkout = lazy(() => import('./pages/Checkout'));
 const PaymentResult = lazy(() => import('./pages/PaymentResult'));
 const Subject = lazy(() => import('./pages/Subject'));
 const Watch = lazy(() => import('./pages/Watch'));
+const TeachGuide = lazy(() => import('./pages/TeachGuide'));
+const Teach = lazy(() => import('./pages/Teach'));
+const TeachPreview = lazy(() => import('./pages/TeachPreview'));
+const Admin = lazy(() => import('./pages/Admin'));
+const Onboarding = lazy(() => import('./pages/Onboarding'));
+const MyCourses = lazy(() => import('./pages/MyCourses'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -42,19 +48,26 @@ export function App() {
   return (
     <>
       <ScrollToTop />
-      <Suspense fallback={<div className="container page" />}>
+      <Suspense fallback={<div className="wrap page" />}>
         <Routes>
+          {/* Full-screen, as in nano_sylabus: no sidebar or header. */}
+          <Route path="login" element={<AuthPage mode="login" />} />
+          <Route path="signup" element={<AuthPage mode="signup" />} />
+          <Route path="onboarding" element={<Onboarding />} />
           <Route element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="courses" element={<Courses />} />
             <Route path="courses/:slug" element={<CourseDetail />} />
-            <Route path="login" element={<AuthPage mode="login" />} />
-            <Route path="signup" element={<AuthPage mode="signup" />} />
             <Route path="app" element={authed(<AppHome />)} />
+            <Route path="app/courses" element={authed(<MyCourses />)} />
             <Route path="app/checkout/:slug" element={authed(<Checkout />)} />
             <Route path="app/payment/result" element={authed(<PaymentResult />)} />
             <Route path="app/courses/:slug/:subject" element={authed(<Subject />)} />
             <Route path="app/watch/:id" element={authed(<Watch />)} />
+            <Route path="teach" element={<TeachGuide />} />
+            <Route path="app/teach" element={authed(<Teach />)} />
+            <Route path="app/teach/preview/:id" element={authed(<TeachPreview />)} />
+            <Route path="app/admin" element={authed(<Admin />)} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

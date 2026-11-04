@@ -42,7 +42,7 @@ export function Progress({ value }: { value: number }) {
 
 export function CardSkeletons({ n = 3 }: { n?: number }) {
   return (
-    <div className="grid">
+    <div className="card-grid">
       {Array.from({ length: n }, (_, i) => (
         <div key={i} className="card">
           <div className="skeleton" style={{ aspectRatio: '16 / 9', marginBottom: 14 }} />
@@ -67,14 +67,16 @@ export function ErrorBox({ message, retry }: { message: string; retry?: () => vo
 export function RequireAuth({ children }: { children: ReactNode }) {
   const { user, ready } = useAuth();
   const loc = useLocation();
-  if (!user && !ready) return <div className="container page muted">Loading…</div>;
+  if (!user && !ready) return <div className="wrap page muted">Loading…</div>;
   if (!user) return <Navigate to={`/login?next=${encodeURIComponent(loc.pathname + loc.search)}`} replace />;
+  // New accounts finish onboarding (name + answer language) first.
+  if (user.onboarded === false) return <Navigate to={`/onboarding?next=${encodeURIComponent(loc.pathname + loc.search)}`} replace />;
   return <>{children}</>;
 }
 
 export function NotFound() {
   return (
-    <main className="container page narrow stack">
+    <main className="wrap page narrow stack">
       <h1>Page not found</h1>
       <p className="muted">The page you were looking for has moved or never existed.</p>
       <Link to="/courses" className="btn btn-primary">Browse courses</Link>
