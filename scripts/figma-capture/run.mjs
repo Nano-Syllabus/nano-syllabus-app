@@ -26,7 +26,8 @@ const OUT = path.join(HERE, 'out');
 fs.mkdirSync(OUT, { recursive: true });
 const which = process.argv[2] || 'both';
 const only = process.argv[3] || '';
-const STUDENT = { name: 'Pratiksha Rai', email: "pratiksha.rai@example.test", password: 'figma-flow-2026' };
+// one fresh learner per viewport (delete them before a rerun: see README)
+const studentFor = (tag) => ({ name: 'Pratiksha Rai', email: `pratiksha.${tag}@example.test`, password: 'figma-flow-2026' });
 const ADMIN = { name: 'Yogesh Aryal', email: 'admin.figma@example.test', password: 'figma-flow-2026' };
 const LANDING = fs.readFileSync(path.join(HERE, '../../dist/landing.html'), 'utf8');
 const LANDING_LIVE = fs.readFileSync(path.join(HERE, '../../dist/landing-live.html'), 'utf8');
@@ -36,7 +37,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const dataCache = new Map();
 
 async function settle(page) {
-  try { await page.waitForLoadState('networkidle', { timeout: 15000 }); } catch {}
+  try { await page.waitForLoadState('networkidle', { timeout: 15000, waitUntil: 'commit' }); } catch {}
   // scroll through to trigger lazy content / reveal observers, then back up
   await page.evaluate(async () => {
     const h = () => document.documentElement.scrollHeight;
@@ -175,6 +176,7 @@ async function ensureAccount(ctx, acct) {
 }
 
 async function runViewport(browser, tag, viewport) {
+  const STUDENT = studentFor(tag);
   const mk = async () => {
     const ctx = await browser.newContext({ viewport, deviceScaleFactor: 2, isMobile: tag === 'phone', hasTouch: tag === 'phone', colorScheme: 'light', locale: 'en-US', timezoneId: 'Asia/Kathmandu' });
     ctx.__tag = tag;
@@ -210,10 +212,12 @@ async function runViewport(browser, tag, viewport) {
     const page = await ctx.newPage();
     await ensureAccount(ctx, STUDENT);
     await go(page, '/onboarding');
+    await page.waitForSelector('input');
+    await page.locator('input').first().fill(STUDENT.name);
     await cap(ctx, page, '07-onboarding', 'Onboarding');
-    // finish onboarding through the API so the app stops redirecting to it
-    await ctx.request.put(BASE + '/api/me/profile', { data: { name: STUDENT.name, languagePref: 'RN' }, headers: { 'content-type': 'application/json', origin: BASE } }).catch(() => {});
-    await go(page, '/app');
+    // finish onboarding the way a learner does, so the client's cached user is updated too
+    await page.getByRole('button', { name: /start learning/i }).click();
+    await page.waitForURL(/\/app(\?|$)/, { timeout: 15000, waitUntil: 'commit' });
     await cap(ctx, page, '08-app-home-new', 'App home · new learner');
     await go(page, '/courses');
     await cap(ctx, page, '09-courses-signed-in', 'Course browse (signed in)');
