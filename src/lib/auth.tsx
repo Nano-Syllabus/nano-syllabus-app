@@ -11,7 +11,12 @@ type AuthState = {
   user: User | null;
   ready: boolean; // true once the server has confirmed who we are
   login: (email: string, password: string) => Promise<User>;
-  signup: (name: string, email: string, password: string) => Promise<User>;
+  /** null: the server emailed a code; finish with verifySignup. */
+  signup: (name: string, email: string, password: string) => Promise<User | null>;
+  verifySignup: (email: string, code: string) => Promise<User>;
+  /** Emails a password-reset code. */
+  startReset: (email: string) => Promise<void>;
+  finishReset: (email: string, code: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
   /** Replace the signed-in user after a profile change (onboarding). */
   setUser: (u: User) => void;
@@ -69,7 +74,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signup = useCallback(
     async (name: string, email: string, password: string) => {
-      const { user: u } = await api<{ user: User }>('/api/auth/signup', { method: 'POST', body: { name, email, password } });
+      const res = await api<{ user?: User; verify?: boolean }>('/api/auth/signup', { method: 'POST', body: { name, email, password } });
+      if (!res.user) return null;
+      signedIn(res.user);
+      return res.user;
+    },
+    [signedIn],
+  );
+
+  const verifySignup = useCallback(
+    async (email: string, code: string) => {
+      const { user: u } = await api<{ user: User }>('/api/auth/signup/verify', { method: 'POST', body: { email, code } });
+      signedIn(u);
+      return u;
+    },
+    [signedIn],
+  );
+
+  const startReset = useCallback(async (email: string) => {
+    await api('/api/auth/reset', { method: 'POST', body: { email } });
+  }, []);
+
+  const finishReset = useCallback(
+    async (email: string, code: string, password: string) => {
+      const { user: u } = await api<{ user: User }>('/api/auth/reset/verify', { method: 'POST', body: { email, code, password } });
       signedIn(u);
       return u;
     },
@@ -88,7 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(u);
   }, []);
 
-  return <Ctx.Provider value={{ user, ready, login, signup, logout, setUser: replaceUser }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ user, ready, login, signup, verifySignup, startReset, finishReset, logout, setUser: replaceUser }}>{children}</Ctx.Provider>;
 }
 
 export function useAuth() {

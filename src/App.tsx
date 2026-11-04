@@ -52,8 +52,9 @@ export function App() {
       <Suspense fallback={<div className="wrap page" />}>
         <Routes>
           {/* Full-screen, as in nano_sylabus: no sidebar or header. */}
-          <Route path="login" element={<AuthPage mode="login" />} />
-          <Route path="signup" element={<AuthPage mode="signup" />} />
+          <Route path="login" element={<AuthPage key="login" mode="login" />} />
+          <Route path="signup" element={<AuthPage key="signup" mode="signup" />} />
+          <Route path="forgot" element={<AuthPage key="forgot" mode="forgot" />} />
           <Route path="onboarding" element={<Onboarding />} />
           <Route element={<Layout />}>
             <Route index element={<Home />} />

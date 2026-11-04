@@ -12,6 +12,8 @@ export type RuntimeConfig = {
   lessonApi: number;
   /** "Continue with Google" is set up on the server. */
   googleAuth: boolean;
+  /** The server emails sign-up and password-reset codes. */
+  emailCodes: boolean;
   /** Courses played by their own app (slug → its URL), e.g. Electrical Machines → /em/. */
   appCourses: Record<string, string>;
 };
@@ -29,6 +31,7 @@ export const config: RuntimeConfig = {
   contentUrl: '/content/',
   lessonApi: 1,
   googleAuth: false,
+  emailCodes: false,
   appCourses: {},
   ...(typeof window !== 'undefined' ? window.__NS_CONFIG__ : undefined),
 };
