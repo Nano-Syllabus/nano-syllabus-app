@@ -5,7 +5,7 @@
 # Repository settings → Secrets and variables → Actions:
 #   secret   VPS_SSH_KEY      private key whose public half is in root's authorized_keys on the VPS
 #   secret   VPS_KNOWN_HOSTS  output of: ssh-keyscan -t ed25519,rsa 173.212.214.79
-#   variable VPS_HOST         root@173.212.214.79
+#   variable (or secret) VPS_HOST   root@173.212.214.79
 name: client
 on:
   push:
@@ -51,8 +51,12 @@ jobs:
           printf '%s\n' "${{ secrets.VPS_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
       - name: Upload and verify
         env:
-          VPS: ${{ vars.VPS_HOST }}
+          # Either a variable or a secret named VPS_HOST works.
+          VPS: ${{ vars.VPS_HOST || secrets.VPS_HOST }}
         run: |
+          # Pasted values often carry a trailing space or newline: strip whitespace.
+          VPS=$(printf '%s' "$VPS" | tr -d '[:space:]')
+          if [ -z "$VPS" ]; then echo "::error::VPS_HOST is empty: add it under Settings → Secrets and variables → Actions (e.g. root@173.212.214.79)"; exit 1; fi
           SSH="ssh -i ~/.ssh/deploy -o BatchMode=yes"
           # Hashed assets first, then the HTML that points at them, so no page
           # ever references a file that is not there yet. Old assets are kept
