@@ -2,6 +2,7 @@ import { brotliCompressSync, constants, gzipSync } from 'node:zlib';
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type Plugin } from 'vite';
 
 // The Go server (nano-syllabus-server) serves the API, media and, in
@@ -32,7 +33,7 @@ function precompress(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), precompress()],
+  plugins: [react(), tailwindcss(), precompress()],
   server: {
     port: 5173,
     proxy: {
@@ -46,6 +47,8 @@ export default defineConfig({
     target: 'es2020',
     cssCodeSplit: true,
     rollupOptions: {
+      // landing.html is nanosyllabus.com's landing page (pre-rendered, no JS).
+      input: { app: 'index.html', landing: 'landing.html' },
       output: {
         // React + router change rarely: one long-cached vendor chunk.
         manualChunks: { vendor: ['react', 'react-dom', 'react-router-dom'] },

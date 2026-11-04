@@ -27,6 +27,17 @@ function ScrollToTop() {
 
 const authed = (el: JSX.Element) => <RequireAuth>{el}</RequireAuth>;
 
+// The server answers "/" with the pre-rendered landing page (landing.html), not
+// this app. So reaching "/" from inside the app is a full page load. Only when
+// the app itself was loaded at "/" (vite dev, or a build without landing.html)
+// does it show its own Landing.
+const BOOTED_AT_HOME = window.location.pathname === '/';
+function Home() {
+  if (BOOTED_AT_HOME) return <Landing />;
+  window.location.assign('/');
+  return null;
+}
+
 export function App() {
   return (
     <>
@@ -34,7 +45,7 @@ export function App() {
       <Suspense fallback={<div className="container page" />}>
         <Routes>
           <Route element={<Layout />}>
-            <Route index element={<Landing />} />
+            <Route index element={<Home />} />
             <Route path="courses" element={<Courses />} />
             <Route path="courses/:slug" element={<CourseDetail />} />
             <Route path="login" element={<AuthPage mode="login" />} />
