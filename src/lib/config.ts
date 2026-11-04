@@ -10,6 +10,8 @@ export type RuntimeConfig = {
   contentUrl: string;
   /** Lesson-module contract this app implements (see src/content/host.ts). */
   lessonApi: number;
+  /** "Continue with Google" is set up on the server. */
+  googleAuth: boolean;
 };
 
 declare global {
@@ -24,5 +26,6 @@ export const config: RuntimeConfig = {
     'Short video lessons and interactive explainers for IOE and Nepali university syllabi. Learn each subject topic by topic.',
   contentUrl: '/content/',
   lessonApi: 1,
+  googleAuth: false,
   ...(typeof window !== 'undefined' ? window.__NS_CONFIG__ : undefined),
 };

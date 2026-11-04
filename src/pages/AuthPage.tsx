@@ -5,7 +5,8 @@ import { useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 import { SITE, useSeo } from '../lib/seo';
-import { AuthShell, Button, Field, Input } from '../ui/kit';
+import { config } from '../lib/config';
+import { AuthShell, Button, DividerOr, Field, GoogleButton, Input } from '../ui/kit';
 
 // Only same-site paths are honoured, so ?next= cannot bounce users off-site.
 function safeNext(next: string | null) {
@@ -35,7 +36,8 @@ export default function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
   const [password, setPassword] = useState('');
   const [password2, setPassword2] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
+  // Google sign-in failures come back as ?error=…
+  const [error, setError] = useState(params.get('error') ?? '');
   const [loading, setLoading] = useState(false);
   const strength = passwordStrength(password);
 
@@ -66,6 +68,12 @@ export default function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
   if (isSignup) {
     return (
       <AuthShell title="Create your account" subtitle="Start learning one small topic at a time.">
+        {config.googleAuth ? (
+          <>
+            <GoogleButton next={next} />
+            <DividerOr />
+          </>
+        ) : null}
         <form onSubmit={onSubmit} className="space-y-4">
           <Field label="Full name">
             <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Pratiksha Rai" autoComplete="name" required />
@@ -107,6 +115,12 @@ export default function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
 
   return (
     <AuthShell title="Welcome back" subtitle="Sign in to continue your study sessions.">
+      {config.googleAuth ? (
+        <>
+          <GoogleButton next={next} />
+          <DividerOr />
+        </>
+      ) : null}
       <form onSubmit={onSubmit} className="space-y-4">
         <Field label="Email">
           <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@school.edu.np" autoComplete="email" required />
