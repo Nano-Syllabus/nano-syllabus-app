@@ -1,5 +1,6 @@
-// nanosyllabus.com's landing page: a line-for-line port of nano_sylabus
-// components/main-landing-view.tsx (commit ce600de). Only the Next.js parts
+// nanosyllabus.com's landing page: started as a line-for-line port of nano_sylabus
+// components/main-landing-view.tsx (commit ce600de); since 2026-11-04 it has
+// its own copy (no "How it works" section, new hero line). Only the Next.js parts
 // changed: next/link and next/image are plain <a>/<img>, next/font/local is
 // @font-face in landing.css (font-lp-dm, font-lp-manrope), and the CSS module
 // class is .lp-original. It is pre-rendered to dist/landing.html at build time
@@ -123,25 +124,6 @@ function Cta({
   );
 }
 
-const steps = [
-  {
-    title: "Start from your syllabus",
-    detail: "Lessons follow your course, split into micro-topics you can finish in one sitting.",
-  },
-  {
-    title: "Watch and participate",
-    detail: "Each video explains an idea, then asks you something. You answer and get instant feedback.",
-  },
-  {
-    title: "Test what you remember",
-    detail: "Exam-style questions show exactly what you missed.",
-  },
-  {
-    title: "See your progress",
-    detail: "Track every topic and subject, so you know what needs revision.",
-  },
-];
-
 const audiences = [
   {
     title: "Students aiming for higher marks",
@@ -193,7 +175,6 @@ const faqs = [
 ];
 
 const navLinks = [
-  { href: "#how-it-works", label: "How it works" },
   { href: "#courses", label: "Courses" },
   { href: "#questions", label: "FAQ" },
 ];
@@ -283,7 +264,7 @@ export function MainLandingView() {
               <h1
                 className={`font-lp-manrope text-[clamp(2.5rem,5.2vw,5.2rem)] font-extrabold leading-[1.08] tracking-[-0.055em] text-[#1c1e1a]`}
               >
-                Transforming syllabus into short{" "}
+                Turn any syllabus into short{" "}
                 <span className="relative isolate inline-block px-1">
                   interactive video lessons.
                   <span
@@ -372,29 +353,6 @@ export function MainLandingView() {
           </div>
         </section>
 
-        {/* ── 4. How it works ── */}
-        <section id="how-it-works" className="bg-[#eff1e9] py-24 lg:py-28">
-          <div className="mx-auto max-w-[1320px] px-5 2xl:px-0">
-            <h2 className={`${sectionHeading} max-w-[860px]`}>
-              From your syllabus to exam-ready, one small step at a time.
-            </h2>
-            <ol className="mt-14 grid border-t border-[#c8cec0] md:grid-cols-4">
-              {steps.map(({ title, detail }, index) => (
-                <li
-                  key={title}
-                  className="flex min-h-[220px] flex-col border-b border-[#c8cec0] py-8 pr-5 md:border-r md:px-7 md:first:pl-0 md:last:border-r-0"
-                >
-                  <span className="text-sm font-extrabold text-[var(--lp-primary)]">0{index + 1}</span>
-                  <h3 className={`font-lp-manrope mt-6 text-xl font-bold tracking-tight text-[#1c1e1a]`}>
-                    {title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-[#5b5e55]">{detail}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
         {/* ── 5. Who it's for ── */}
         <section className="mx-auto max-w-[1320px] px-5 py-24 lg:py-28 2xl:px-0">
           <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
@@ -429,8 +387,18 @@ export function MainLandingView() {
         {/* ── 6. Courses on the way: nothing here is clickable yet ── */}
         <section id="courses" className="cursor-default bg-[#eff1e9] py-24 lg:py-28">
           <div className="mx-auto max-w-[1320px] px-5 2xl:px-0">
-            <h2 className={sectionHeading}>Courses on the way</h2>
-            <p className="mt-4 text-base text-[#5b5e55]">We&apos;re building program by program. These are first.</p>
+            <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+              <div>
+                <h2 className={sectionHeading}>Courses on the way</h2>
+                <p className="mt-4 text-base text-[#5b5e55]">We&apos;re building program by program. These are first.</p>
+              </div>
+              <span
+                aria-disabled="true"
+                className="inline-flex min-h-[48px] shrink-0 items-center self-start rounded-lg border border-[#d9ddd3] bg-[#f4f6f1] px-6 text-sm font-semibold text-[#9a9d93] sm:self-auto"
+              >
+                Browse all courses · Coming soon
+              </span>
+            </div>
             <ul className="mt-12 grid gap-5 sm:grid-cols-3">
               {courses.map((course) => (
                 <li key={course} className="rounded-2xl border border-[#d9ddd3] bg-white p-7">
@@ -443,21 +411,13 @@ export function MainLandingView() {
                 </li>
               ))}
             </ul>
-            <div className="mt-10 flex flex-wrap items-center gap-5">
-              <span
-                aria-disabled="true"
-                className="inline-flex min-h-[48px] items-center rounded-lg border border-[#d9ddd3] bg-[#f4f6f1] px-6 text-sm font-semibold text-[#9a9d93]"
-              >
-                Browse all courses · Coming soon
-              </span>
-              <p className="text-sm text-[#5b5e55]">More programs will be added as we grow.</p>
-            </div>
+            <p className="mt-10 text-sm text-[#5b5e55]">More programs will be added as we grow.</p>
           </div>
         </section>
 
         {/* ── 7. Why NanoSyllabus ── */}
         <section className="mx-auto max-w-[1320px] px-5 py-24 lg:py-28 2xl:px-0">
-          <h2 className={sectionHeading}>What makes it different.</h2>
+          <h2 className={sectionHeading}>Why NanoSyllabus</h2>
           <div className="mt-12 overflow-x-auto rounded-2xl border border-[#e5e8df] bg-white">
             <table className="w-full min-w-[620px] text-left text-sm">
               <thead>
