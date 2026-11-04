@@ -24,7 +24,21 @@ python3 figma-fonts.py       # out/ → fig/: real Google Fonts names for Figma
 ```
 
 `run.mjs desktop 24-em` captures one page. It signs up local test accounts,
-so it refuses any `BASE` that isn't localhost.
+so it refuses any `BASE` that isn't localhost. Each viewport needs a brand-new
+learner (onboarding, the empty hub), so delete them before a rerun:
+
+```bash
+docker exec nanosyl-pg psql -U nano -d nanosyllabus \
+  -c "delete from users where email like 'pratiksha.%@example.test'"
+```
+
+## Into Figma
+
+Each `fig/*.html` goes through the Figma MCP `html_to_figma` tool: one call per
+page returns a single-use submit URL, then `upload.sh list.txt urls.txt` POSTs
+the files in order (`list.txt` = file names, `urls.txt` = the submit ids, same
+order). Frames take their name from the page `<title>`. The Starter plan caps
+MCP tool calls, so a full import (54 pages) needs a paid seat or several days.
 
 ## Pages
 
@@ -46,5 +60,8 @@ signed in · 13 payment result · 14 my courses · 15 subject · 16–18 lessons
   narrated player) are paused where they are. The lesson player is paused first.
 - Google Fonts sheets are cross-origin, so their latin `@font-face` blocks are
   fetched separately.
+- A modal `<dialog>` lives in the top layer: its `::backdrop` becomes a real
+  layer and the dialog is pinned to its on-screen box (margins and centring
+  transforms dropped).
 - Negative `z-index` layers are moved first in their parent so Figma's layer
   order matches what the browser paints.
