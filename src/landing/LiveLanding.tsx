@@ -134,7 +134,8 @@ else if(a==='share'){var u=location.origin+'/';if(navigator.share)navigator.shar
 else if(a==='full'){var el=r;if(document.fullscreenElement)document.exitFullscreen();else if(el.requestFullscreen)el.requestFullscreen().catch(function(){});else if(v.webkitEnterFullscreen)v.webkitEnterFullscreen()}});
 r.addEventListener('keydown',function(e){if(e.target===bar)return;if(e.key===' '||e.key==='k'){e.preventDefault();toggle()}else if(e.key==='ArrowRight')v.currentTime+=5;else if(e.key==='ArrowLeft')v.currentTime-=5;else if(e.key==='m')v.muted=!v.muted});
 if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(e){var on=e.intersectionRatio>=0.5;if(on){if(!seen){seen=true;v.preload='auto'}if(!held&&!calm&&v.paused)play()}else if(!v.paused){v.pause()}})},{threshold:[0,0.5]}).observe(r);
-state();tick()})();`;
+state();tick()})();
+(function(){var b=document.querySelector('.ll-book-scene');if(!b||!('IntersectionObserver' in window))return;b.classList.add('is-off');new IntersectionObserver(function(es){es.forEach(function(e){b.classList.toggle('is-off',!e.isIntersecting)})}).observe(b)})();`;
 
 export function LiveLanding() {
   return (
@@ -221,7 +222,40 @@ export function LiveLanding() {
           <div className="ll-wrap">
             <h2 className="ll-h2">Why interactive matters now</h2>
             <div className="ll-split ll-split-rev">
-              <div className="ll-panel ll-panel-sand" aria-hidden="true" />
+              <div className="ll-panel ll-panel-sand ll-book-scene" role="img" aria-label="A textbook page you can work with: a cursor drags the speed slider so the wave grows, answers the quick check correctly, earns ten points, and the next lines unlock.">
+                <span className="ll-bk-progress" aria-hidden="true"><i /></span>
+                <span className="ll-bk-toast" aria-hidden="true">✓ Correct · +10</span>
+                <div className="ll-bk-book" aria-hidden="true">
+                  <div className="ll-bk-page ll-bk-left">
+                    <span className="ll-bk-eyebrow">Chapter 4 · DC Motor</span>
+                    <span className="ll-bk-title">Back EMF</span>
+                    <span className="ll-bk-fig">
+                      <svg viewBox="0 0 200 80" preserveAspectRatio="none">
+                        <path className="ll-bk-axis" d="M0 40H200" />
+                        <g className="ll-bk-wave"><path d="M0 40 C 12.5 10, 37.5 10, 50 40 S 87.5 70, 100 40 S 137.5 10, 150 40 S 187.5 70, 200 40" /></g>
+                      </svg>
+                      <span className="ll-bk-figlabel">E = kΦω</span>
+                    </span>
+                    <span className="ll-bk-slider"><i /><b /></span>
+                    <span className="ll-bk-sliderlabel">Speed ω</span>
+                    <span className="ll-bk-line" style={{ top: '80%', width: '76%' }} />
+                    <span className="ll-bk-line" style={{ top: '86%', width: '58%' }} />
+                  </div>
+                  <div className="ll-bk-page ll-bk-right">
+                    <span className="ll-bk-eyebrow">Quick check</span>
+                    <span className="ll-bk-q">As the motor speeds up, its back EMF…</span>
+                    <span className="ll-bk-opt ll-bk-opt-a"><em /> Rises</span>
+                    <span className="ll-bk-opt ll-bk-opt-b"><em /> Falls</span>
+                    <span className="ll-bk-line ll-bk-locked" style={{ top: '74%', width: '74%' }} />
+                    <span className="ll-bk-line ll-bk-locked" style={{ top: '80%', width: '82%' }} />
+                    <span className="ll-bk-line ll-bk-locked" style={{ top: '86%', width: '52%' }} />
+                  </div>
+                </div>
+                <span className="ll-bk-cursor" aria-hidden="true">
+                  <svg width="22" height="26" viewBox="0 0 22 26"><path d="M2 1.5v19.2l5.2-4.6 3.4 8 3.3-1.4-3.4-7.9 7-.4z" fill="#111" stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" /></svg>
+                  <i />
+                </span>
+              </div>
               <div className="ll-split-copy">
                 <h3>In the age of AI, answers are easy. Understanding is not.</h3>
                 <p>An exam doesn't test whether you can find an answer. It tests whether you can build one, from memory, under time pressure. In every lesson you stop, think, respond and fix your mistakes. What you work out yourself is what you remember.</p>
