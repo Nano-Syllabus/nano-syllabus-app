@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ErrorBox } from '../components/bits';
-import { CopyBlock, ProblemList, StatusBadge, when } from '../components/teach';
+import { CopyBlock, ProblemList, StatusBadge, useHashScroll, when } from '../components/teach';
 import { api, setCached, useQuery } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { SITE, useSeo } from '../lib/seo';
@@ -27,7 +27,7 @@ export default function Teach() {
             To become a teacher, send the email you signed in with (<b>{user?.email}</b>) to the Nano Syllabus team. Once an admin gives
             your account the Teacher role, this page shows your access tokens and submissions.
           </p>
-          <Link className="btn btn-primary" to="/teach">How teaching on Nano Syllabus works</Link>
+          <Link className="btn btn-primary" to="/app/teacher/guide">How teaching on Nano Syllabus works</Link>
         </div>
       </main>
     );
@@ -39,12 +39,13 @@ function TeacherHome() {
   const { data, error } = useQuery<TeachMe>('teach:me', '/api/teach/me');
   const { data: tokens } = useQuery<{ tokens: ApiToken[] }>('teach:tokens', '/api/teach/tokens');
   const site = data?.site ?? location.origin;
+  useHashScroll();
 
   return (
     <main className="wrap page stack">
       <div className="row">
         <h1 style={{ flex: 1, margin: 0 }}>Teacher tools</h1>
-        <Link className="btn" to="/teach">Guide</Link>
+        <Link className="btn" to="/app/teacher/guide">Guide</Link>
       </div>
       {error && <ErrorBox message={error.message} retry={() => location.reload()} />}
 
@@ -67,7 +68,7 @@ function TeacherHome() {
 
       <Tokens tokens={tokens?.tokens} site={site} />
 
-      <section className="stack">
+      <section id="courses" className="stack">
         <h2>Your courses</h2>
         {data && !data.courses.length && <p className="muted">None yet. A course appears here after its first push is approved.</p>}
         <div className="rows">
@@ -85,7 +86,7 @@ function TeacherHome() {
         </div>
       </section>
 
-      <section className="stack">
+      <section id="submissions" className="stack">
         <h2>Submissions</h2>
         {data && !data.submissions.length && (
           <p className="muted">
@@ -153,7 +154,7 @@ function Tokens({ tokens, site }: { tokens?: ApiToken[]; site: string }) {
   };
 
   return (
-    <section className="card stack">
+    <section id="tokens" className="card stack">
       <h2>Access tokens</h2>
       <p className="muted small">
         A token lets Claude Code (and other AI tools) push courses as you. Keep it like a password; revoke it if it leaks.

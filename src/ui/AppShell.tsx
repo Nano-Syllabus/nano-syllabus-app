@@ -25,7 +25,7 @@ function navFor(role?: string): NavItem[] {
     },
   ];
   if (role === 'teacher' || role === 'admin') items.push({ to: '/app/teach', label: 'Teach', icon: <GraduationCap strokeWidth={1.8} />, match: (p) => p.startsWith('/app/teach') });
-  else items.push({ to: '/teach', label: 'Teach', icon: <GraduationCap strokeWidth={1.8} />, match: (p) => p === '/teach' });
+  else items.push({ to: '/app/teacher/guide', label: 'Teach', icon: <GraduationCap strokeWidth={1.8} />, match: (p) => p === '/app/teacher/guide' });
   if (role === 'admin') items.push({ to: '/app/admin', label: 'Admin', icon: <ClipboardCheck strokeWidth={1.8} />, match: (p) => p.startsWith('/app/admin') });
   return items;
 }
@@ -214,7 +214,7 @@ function Sidebar({ collapsed, onToggle, onClose }: { collapsed: boolean; onToggl
                 Teacher tools
               </MenuLink>
             )}
-            <MenuLink to="/teach" onClick={() => { setMenu(false); onClose(); }} icon={<BookOpen size={16} />}>
+            <MenuLink to="/app/teacher/guide" onClick={() => { setMenu(false); onClose(); }} icon={<BookOpen size={16} />}>
               How teaching works
             </MenuLink>
             <div className="mx-1 my-1 border-t border-border" />

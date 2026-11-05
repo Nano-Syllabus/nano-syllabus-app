@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import type { Problem, SubmissionStatus } from '../lib/types';
 
 const STATUS_WORDS: Record<SubmissionStatus, string> = {
@@ -12,6 +13,18 @@ const STATUS_WORDS: Record<SubmissionStatus, string> = {
 
 export function StatusBadge({ status }: { status: SubmissionStatus }) {
   return <span className={`status status-${status}`}>{STATUS_WORDS[status] ?? status}</span>;
+}
+
+/** Opens at the #section in the address, once the lazy page has rendered. */
+export function useHashScroll() {
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (!hash) return;
+    const id = decodeURIComponent(hash.slice(1));
+    requestAnimationFrame(() => {
+      document.getElementById(id)?.scrollIntoView();
+    });
+  }, [hash]);
 }
 
 /** A command or text block with a Copy button. */

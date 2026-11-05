@@ -93,12 +93,12 @@ Don't re-port from nano_sylabus without merging these changes back in.
 ### 6. Teacher pages (2026-11-04): uncommitted
 | Route | File | What |
 |---|---|---|
-| `/teach` | `src/pages/TeachGuide.tsx` | public walkthrough: what you need, the 7 steps with example prompts, the rules, the review states, other AI tools (MCP), FAQ |
+| `/app/teacher/guide` (`/teach` and `/app/teach/guide` redirect here, section links included) | `src/pages/TeachGuide.tsx` | public guide: what you need, the 8 steps with example prompts, the rules, the review states, troubleshooting, other AI tools (MCP), FAQ |
 | `/app/teach` | `src/pages/Teach.tsx` | students see how to get access; teachers see plugin install, access tokens (shown once), courses and submissions |
 | `/app/teach/preview/:id` | `src/pages/TeachPreview.tsx` | a push played in the real player; admins approve or send back |
 | `/app/admin` | `src/pages/Admin.tsx` | review queue, all submissions, Teachers (add or remove by email) |
 
-The header nav shows Teach (to `/app/teach` for teachers, `/teach` otherwise) and Admin. Shared bits are in `src/components/teach.tsx`. Types: `Role`, `Submission` and the rest in `src/lib/types.ts`; `User.role` comes from `/api/auth/me`.
+The header nav shows Teach (to `/app/teach` for teachers, `/app/teacher/guide` otherwise) and Admin. Shared bits are in `src/components/teach.tsx`. Types: `Role`, `Submission` and the rest in `src/lib/types.ts`; `User.role` comes from `/api/auth/me`.
 
 ### 7. Two landing builds (2026-11-04): uncommitted
 `MainLandingView` takes `variant`: `waitlist` (nanosyllabus.com, "Join Waitlist" → book a call) or `live` (live.nanosyllabus.com, "Sign in" → `/login`, closing "Start free" → `/signup`). `scripts/prerender-landing.mjs` writes `dist/landing.html` and `dist/landing-live.html` (the live one is `noindex`). Everything else on the two pages is identical.

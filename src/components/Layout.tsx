@@ -33,7 +33,7 @@ function PublicLayout() {
           </Link>
           <nav className="flex items-center gap-5 text-[15px] font-medium text-[#5d6862] dark:text-[#a3ada8]">
             <NavLink to="/courses" className={({ isActive }) => (isActive ? 'text-[#18251e] dark:text-white' : 'hover:text-[#18251e] dark:hover:text-white')}>Courses</NavLink>
-            <NavLink to="/teach" className={({ isActive }) => 'max-sm:hidden ' + (isActive ? 'text-[#18251e] dark:text-white' : 'hover:text-[#18251e] dark:hover:text-white')}>Teach</NavLink>
+            <NavLink to="/app/teacher/guide" className={({ isActive }) => 'max-sm:hidden ' + (isActive ? 'text-[#18251e] dark:text-white' : 'hover:text-[#18251e] dark:hover:text-white')}>Teach</NavLink>
           </nav>
           <span className="flex-1" />
           {user ? (
@@ -55,7 +55,7 @@ function PublicLayout() {
           <span>© {new Date().getFullYear()} {SITE}</span>
           <span className="spacer" />
           <Link to="/courses">All courses</Link>
-          <Link to="/teach">Teach on {SITE}</Link>
+          <Link to="/app/teacher/guide">Teach on {SITE}</Link>
         </div>
       </footer>
     </>

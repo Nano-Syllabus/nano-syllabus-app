@@ -8,8 +8,8 @@
 // Lesson frame protocol 1 (the same as nano-syllabus-toolkit
 // engine/frame/frame.jsx, which runs `ns preview`; keep them in step):
 //   frame → page  hello · shown · height {value} · progress {value 0..1} · complete · error {message}
-//                 layout {full: bool} (the lesson asks for the whole screen) · exit (the lesson's close button)
-//   page → frame  init {moduleUrl, cssUrls, lesson, theme?} · theme {theme}
+//                 layout {full: bool} (the lesson asks for the whole screen) · exit (the lesson's close button) · fullscreen {on: bool} (the video's full-screen button; the page takes the real screen)
+//   page → frame  init {moduleUrl, cssUrls, lesson, theme?} · theme {theme}  · fullscreen {on: false} (the screen was given back)
 // Every message is { ns: 1, type, … }.
 //
 // Lessons import React from globalThis.__NS_HOST__ (lesson API 1), which

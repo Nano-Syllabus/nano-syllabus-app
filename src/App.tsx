@@ -74,7 +74,10 @@ export function App() {
             <Route path="app/payment/result" element={authed(<PaymentResult />)} />
             <Route path="app/courses/:slug/:subject" element={authed(<Subject />)} />
             <Route path="app/watch/:id" element={authed(<Watch />)} />
-            <Route path="teach" element={<TeachGuide />} />
+            <Route path="teach" element={<ToGuide />} />
+            <Route path="app/teacher" element={<Navigate to="/app/teach" replace />} />
+            <Route path="app/teach/guide" element={<ToGuide />} />
+            <Route path="app/teacher/guide" element={<TeachGuide />} />
             <Route path="app/teach" element={authed(<Teach />)} />
             <Route path="app/teach/preview/:id" element={authed(<TeachPreview />)} />
             <Route path="app/admin" element={authed(<Admin />)} />
@@ -84,6 +87,12 @@ export function App() {
       </Suspense>
     </>
   );
+}
+
+// The guide's old addresses, section links included (/teach#steps).
+function ToGuide() {
+  const { hash } = useLocation();
+  return <Navigate to={`/app/teacher/guide${hash}`} replace />;
 }
 
 // The old /learn link (the Spark lab app, removed 2026-11-05) opens the course path.

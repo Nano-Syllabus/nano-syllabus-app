@@ -107,6 +107,20 @@ function Interactive({ lesson, onSave, onExit }: { lesson: PlayableLesson; onSav
   );
 }
 
+// A video's full-screen button, like a phone's video app: the real screen, on its
+// side. The frame can't take these itself (the sandbox grants it nothing), so it
+// asks and the page does it, within the tap that was just made in the frame. An
+// iPhone has neither: the video fills the page, and the phone is turned by hand.
+function takeScreen(el: HTMLElement | null, on: boolean) {
+  const orientation = screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> };
+  if (on) {
+    void el?.requestFullscreen?.()?.then(() => orientation?.lock?.('landscape')).catch(() => {});
+  } else {
+    orientation?.unlock?.();
+    if (document.fullscreenElement) void document.exitFullscreen().catch(() => {});
+  }
+}
+
 /** An interactive lesson in the sealed lesson frame (lesson frame protocol 1). */
 function SandboxedLesson({ lesson, onSave, onExit }: { lesson: PlayableLesson; onSave: OnSave; onExit?: () => void }) {
   const frame = useRef<HTMLIFrameElement>(null);
@@ -166,6 +180,9 @@ function SandboxedLesson({ lesson, onSave, onExit }: { lesson: PlayableLesson; o
         case 'exit':
           exit.current?.();
           break;
+        case 'fullscreen':
+          takeScreen(frame.current, m.on === true);
+          break;
         case 'error':
           clearTimeout(timeout);
           setError(String(m.message ?? 'This lesson hit a problem.'));
@@ -181,6 +198,19 @@ function SandboxedLesson({ lesson, onSave, onExit }: { lesson: PlayableLesson; o
       offTheme();
     };
   }, [lesson.id, lesson.moduleUrl, lesson.cssUrls, lesson.title, lesson.durationSeconds, attempt]);
+
+  // The screen given back (Back gesture, Esc): the video leaves full screen too.
+  // Closing the lesson gives it back as well.
+  useEffect(() => {
+    const onChange = () => {
+      if (!document.fullscreenElement) frame.current?.contentWindow?.postMessage({ ns: 1, type: 'fullscreen', on: false }, '*');
+    };
+    document.addEventListener('fullscreenchange', onChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', onChange);
+      takeScreen(null, false);
+    };
+  }, []);
 
   // No page scroll behind a full-screen lesson.
   useEffect(() => {
