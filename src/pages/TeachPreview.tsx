@@ -21,6 +21,9 @@ export default function TeachPreview() {
   const { data, error } = useQuery<Preview>(key, `/api/teach/submissions/${encodeURIComponent(id)}/preview`);
   const { user } = useAuth();
   const [pick, setPick] = useState<string | null>(null);
+  // An interactive lesson can take the whole screen, so it starts on a click
+  // and its X comes back here: the review buttons must stay reachable.
+  const [playing, setPlaying] = useState(false);
   const [events, setEvents] = useState<string[]>([]);
   useSeo({ title: `Preview #${id} · ${SITE}`, noindex: true });
 
@@ -84,7 +87,14 @@ export default function TeachPreview() {
             {current ? (
               <>
                 <div className="row small muted">{current.subject}</div>
-                <LessonBody key={current.key} lesson={current} onSave={log} />
+                {current.moduleUrl && !playing ? (
+                  <div className="card stack" style={{ alignItems: 'flex-start' }}>
+                    <p className="muted" style={{ margin: 0 }}>Plays full screen. Close it with the X to come back here.</p>
+                    <button className="btn btn-primary" onClick={() => setPlaying(true)}>Play lesson</button>
+                  </div>
+                ) : (
+                  <LessonBody key={current.key} lesson={current} onSave={log} onExit={() => setPlaying(false)} />
+                )}
                 <h2 style={{ margin: 0 }}>{current.title}</h2>
                 {current.description && <p className="muted">{current.description}</p>}
               </>
@@ -115,7 +125,7 @@ export default function TeachPreview() {
                     const on = k === (current?.key ?? '');
                     return (
                       <li key={k}>
-                        <button className="list-item" style={{ width: '100%', textAlign: 'left', border: 0, background: 'none', font: 'inherit', cursor: 'pointer' }} onClick={() => { setPick(k); setEvents([]); }} aria-current={on ? 'true' : undefined}>
+                        <button className="list-item" style={{ width: '100%', textAlign: 'left', border: 0, background: 'none', font: 'inherit', cursor: 'pointer' }} onClick={() => { setPick(k); setEvents([]); setPlaying(true); }} aria-current={on ? 'true' : undefined}>
                           <span className="icon-dot" aria-hidden>{l.kind === 'video' ? '▶' : l.kind === 'article' ? '¶' : '✦'}</span>
                           <span className="grow">
                             <span className="title" style={on ? { color: 'var(--primary)' } : undefined}>{l.title}</span>
