@@ -121,14 +121,18 @@ function Tray({ children }: { children: React.ReactNode }) {
   );
 }
 
-function UnlockPill({ slug }: { slug: string }) {
+/** Combo price: every subject in the semester at Rs 1,000. */
+export const COMBO_PER_SUBJECT = 1000;
+
+function UnlockPill({ slug, sem, count }: { slug: string; sem: number; count: number }) {
   return (
     <Link
-      to={`/app/premium/${slug}`}
+      to={`/app/premium/${slug}?semester=${sem}&subjects=${count}`}
       className="flex h-[43px] items-center gap-2 rounded-full border-2 border-[#6e5cff] bg-white px-[22px] text-base font-semibold text-[#1a1a1a] shadow-[0_0_0_1px_rgba(110,92,255,0.12)] transition hover:bg-[#f6f4ff] dark:bg-[#141414] dark:text-white"
     >
       <Bolt className="text-[#ffc800]" />
       Unlock All
+      <span className="font-medium text-[#6e5cff] dark:text-[#a99fff]">· Rs.{(count * COMBO_PER_SUBJECT).toLocaleString('en-IN')}</span>
     </Link>
   );
 }
@@ -158,7 +162,7 @@ function SemesterRow({ sem, courses, starred, onStar }: { sem: Semester; courses
         <img src="/app/semester.webp" width={80} height={76} alt="" className="h-[76px] w-[80px] shrink-0 object-contain max-sm:h-14 max-sm:w-14" />
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-2">
           <h2 title={sem.part} className="font-clash text-2xl font-medium leading-8 text-[#18251e] dark:font-sans dark:font-semibold dark:text-[#dae7e0] max-sm:text-xl">Semester {sem.no}</h2>
-          {toUnlock ? <UnlockPill slug={toUnlock.slug} /> : null}
+          {toUnlock ? <UnlockPill slug={toUnlock.slug} sem={sem.no} count={sem.subjects.length} /> : null}
         </div>
         <button type="button" onClick={onStar} aria-pressed={starred} aria-label={starred ? `Unstar semester ${sem.no}` : `Star semester ${sem.no}`} className="mr-[70px] cursor-pointer text-[#555] dark:text-[#bbb] max-md:mr-2">
           <Star on={starred} />

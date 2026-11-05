@@ -1,12 +1,13 @@
 // /app/premium/:slug, the Figma "Unlock premium" frame (160:5150): the
 // serif headline, Benefits / Free / Premium comparison, and Purchase, which
 // opens the QR payment steps (/app/checkout/:slug).
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { config } from '../lib/config';
 import { SITE, useSeo } from '../lib/seo';
 import type { CourseDetail } from '../lib/types';
+import { COMBO_PER_SUBJECT } from './Topics';
 
 export const rupees = (paisa: number) => (paisa / 100).toLocaleString('en-IN', { maximumFractionDigits: 0 });
 
@@ -58,6 +59,11 @@ const Check = () => (
 export default function Premium() {
   const { slug = '' } = useParams();
   const { user } = useAuth();
+  // From a semester's "Unlock All": the combo of every subject in it.
+  const [q] = useSearchParams();
+  const subjects = Math.min(20, Math.max(0, Number(q.get('subjects')) || 0));
+  const semester = Number(q.get('semester')) || 0;
+  const combo = subjects > 1 ? subjects * COMBO_PER_SUBJECT : 0;
   const { data: c, error } = useQuery<CourseDetail>(`course:${slug}`, `/api/courses/${encodeURIComponent(slug)}`);
   useSeo({ title: `Premium · ${c?.title ?? 'Course'} · ${SITE}`, noindex: true });
   if (error) return <Navigate to="/app/topics" replace />;
@@ -70,11 +76,17 @@ export default function Premium() {
       <PayBackdrop />
       <BrandCorner />
       <h1 className="mx-auto max-w-[620px] text-center font-serif text-[48px] leading-[56px] max-sm:text-[34px] max-sm:leading-[42px]">
-        Unlock the full Subject
+        Unlock the full {combo ? 'Semester' : 'Subject'}
         <br />
         experience with <span className="bg-[linear-gradient(90deg,#0e5cff,#2f8bff)] bg-clip-text text-transparent">Premium</span>
       </h1>
-      {c ? <p className="mt-3 text-center text-sm text-[#69738e] dark:text-[#a6a6af]">{c.title}</p> : null}
+      {combo ? (
+        <p className="mt-3 text-center text-sm text-[#69738e] dark:text-[#a6a6af]">
+          Semester {semester} combo · all {subjects} subjects at Rs.{COMBO_PER_SUBJECT.toLocaleString('en-IN')} each
+        </p>
+      ) : c ? (
+        <p className="mt-3 text-center text-sm text-[#69738e] dark:text-[#a6a6af]">{c.title}</p>
+      ) : null}
 
       <div className="mx-auto mt-[33px] flex w-full max-w-[708px] items-start overflow-x-auto pb-4 pt-1 max-sm:mt-6">
         <div className="mt-[25px] min-w-[220px] flex-1 overflow-hidden rounded-l-[22px] bg-white dark:bg-[#18181a]">
@@ -93,7 +105,8 @@ export default function Premium() {
           <div className="overflow-hidden rounded-[25px] bg-[linear-gradient(180deg,#6b8dff_0%,#8fc4ff_100%)]">
             <div className="flex h-[104px] flex-col items-center justify-center text-2xl font-semibold leading-8 text-[#0e193b] max-sm:text-base max-sm:leading-6">
               <span>Premium</span>
-              <span>{c ? `Rs.${rupees(c.pricePaisa)}` : '…'}</span>
+              <span>{combo ? `Rs.${combo.toLocaleString('en-IN')}` : c ? `Rs.${rupees(c.pricePaisa)}` : '…'}</span>
+              {combo ? <span className="mt-0.5 text-xs font-medium leading-4 text-[#0e193b]/70">{subjects} × Rs.{COMBO_PER_SUBJECT.toLocaleString('en-IN')}</span> : null}
             </div>
             <div className="rounded-[24px] bg-[#fcfcff] pb-1 dark:bg-[#1c1d24]">
               {BENEFITS.map((b, i) => (

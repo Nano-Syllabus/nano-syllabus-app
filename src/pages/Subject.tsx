@@ -25,45 +25,54 @@ function Bars({ filled, active }: { filled: number; active: boolean }) {
 
 export function Stop({ l, i, current, open, href }: { l: LessonSummary; i: number; current: boolean; open: boolean; href: string }) {
   const filled = l.completed ? 3 : current && l.durationSeconds ? Math.min(2, Math.floor((3 * l.positionSeconds) / l.durationSeconds)) : current ? 1 : 0;
+  return <PathStop title={l.title} i={i} filled={filled} done={l.completed} current={current} open={open} href={href} />;
+}
+
+/** One stop on the winding path. `external` links leave the SPA (e.g. /em/). */
+export function PathStop({ title, i, filled, done, current, open, href, external, note }: { title: string; i: number; filled: number; done: boolean; current: boolean; open: boolean; href: string | null; external?: boolean; note?: string }) {
   const x = ZIG[i % ZIG.length];
   const label = (
     <span className="flex min-w-0 flex-col gap-[5px]">
       <Bars filled={filled} active={current} />
-      <span className={'text-sm font-semibold leading-5 ' + (current ? 'text-[#2e4ec3] dark:text-[#8ea4ff]' : l.completed ? 'text-[#18251e] dark:text-[#dae7e0]' : 'text-[#595959] dark:text-[#9a9a9a]')}>
-        {l.title}
+      <span className={'text-sm font-semibold leading-5 ' + (current ? 'text-[#2e4ec3] dark:text-[#8ea4ff]' : done ? 'text-[#18251e] dark:text-[#dae7e0]' : 'text-[#595959] dark:text-[#9a9a9a]')}>
+        {title}
+        {note ? <span className="ml-1.5 align-middle text-[11px] font-medium text-[#1c8a4a] dark:text-[#4ade80]">· {note}</span> : null}
         {!open ? <span className="ml-1.5 align-middle text-[11px] font-medium text-[#858582]">· Locked</span> : null}
       </span>
     </span>
   );
+  const body = (
+    <>
+      {current ? (
+        <img src="/app/node-active.webp" width={123} height={101} alt="" className="h-[101px] w-[123px] shrink-0 transition group-hover:scale-105" />
+      ) : (
+        <span className="flex h-[101px] w-[123px] shrink-0 items-end justify-center pb-[2px]">
+          <img
+            src="/app/node-idle.webp"
+            width={93}
+            height={56}
+            alt=""
+            className={'h-[56px] w-[93px] transition group-hover:scale-105 ' + (done ? '[filter:sepia(1)_saturate(6)_hue-rotate(195deg)_brightness(0.95)]' : 'dark:opacity-60')}
+          />
+        </span>
+      )}
+      {label}
+    </>
+  );
+  const props = {
+    className: 'group flex w-max max-w-full items-center gap-[21px]' + (href ? '' : ' cursor-default'),
+    'aria-current': current ? ('step' as const) : undefined,
+    'aria-label': `${title}${done ? ', done' : current ? ', up next' : ''}${open ? '' : ', locked'}`,
+  };
   return (
     <li className="relative" style={{ paddingLeft: `min(${x}px, 22vw)` }}>
-      <Link
-        to={href}
-        className="group flex w-max max-w-full items-center gap-[21px]"
-        aria-current={current ? 'step' : undefined}
-        aria-label={`${l.title}${l.completed ? ', done' : current ? ', up next' : ''}${open ? '' : ', locked'}`}
-      >
-        {current ? (
-          <img src="/app/node-active.webp" width={123} height={101} alt="" className="h-[101px] w-[123px] shrink-0 transition group-hover:scale-105" />
-        ) : (
-          <span className="flex h-[101px] w-[123px] shrink-0 items-end justify-center pb-[2px]">
-            <img
-              src="/app/node-idle.webp"
-              width={93}
-              height={56}
-              alt=""
-              className={'h-[56px] w-[93px] transition group-hover:scale-105 ' + (l.completed ? '[filter:sepia(1)_saturate(6)_hue-rotate(195deg)_brightness(0.95)]' : 'dark:opacity-60')}
-            />
-          </span>
-        )}
-        {label}
-      </Link>
+      {!href ? <div {...props}>{body}</div> : external ? <a href={href} {...props}>{body}</a> : <Link to={href} {...props}>{body}</Link>}
     </li>
   );
 }
 
 /** The subject card on the left of the path (frame 160:4045). */
-export function SubjectCard({ hero, title, pct, summary, total, exercises, unlock, children }: { hero: string; title: string; pct: number; summary: string; total: number; exercises: number; unlock: string | null; children?: React.ReactNode }) {
+export function SubjectCard({ hero, title, pct, summary, total, exercises, topics, unlock, children }: { hero: string; title: string; pct: number; summary: string; total: number; exercises?: number; topics?: number; unlock: string | null; children?: React.ReactNode }) {
   return (
     <section className="rounded-[25.6px] border-[0.75px] border-[#b4b4b4] bg-white px-[32px] pb-[40px] pt-[12px] dark:border-white/20 dark:bg-[#141414] md:sticky md:top-[85px]">
       <img src={hero} width={119} height={104} alt="" className={'h-[104px] w-[119px] object-contain ' + (hero.includes('ic-') ? 'mix-blend-multiply dark:mix-blend-screen dark:invert dark:hue-rotate-180' : '')} />
@@ -82,7 +91,7 @@ export function SubjectCard({ hero, title, pct, summary, total, exercises, unloc
         <span className="mx-[6px] h-7 w-px bg-[#d7daed] dark:bg-white/20" />
         <span className="flex items-center gap-[9px]">
           <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden className="text-[#2d3044] dark:text-white"><path fill="currentColor" d="M2 9h3V7h2v10H5v-2H2zm20 0h-3V7h-2v10h2v-2h3zM9 11h6v2H9z" /></svg>
-          {exercises} {exercises === 1 ? 'Exercise' : 'Exercises'}
+          {topics !== undefined ? `${topics} ${topics === 1 ? 'Topic' : 'Topics'}` : `${exercises ?? 0} ${exercises === 1 ? 'Exercise' : 'Exercises'}`}
         </span>
       </div>
       {unlock ? (
@@ -97,18 +106,23 @@ export function SubjectCard({ hero, title, pct, summary, total, exercises, unloc
 
 /** The floating card for the next lesson, with its Start / Continue button. */
 export function StartCard({ lesson }: { lesson: LessonSummary }) {
+  return <NextCard title={lesson.title} href={`/app/watch/${lesson.id}`} label={lesson.completed || lesson.positionSeconds ? 'Continue' : 'Start'} />;
+}
+
+export function NextCard({ title, href, label, external }: { title: string; href: string; label: string; external?: boolean }) {
+  const cls = 'relative mt-[20px] flex h-[47px] items-center justify-center overflow-hidden rounded-[50px] bg-[#456dff] text-base font-semibold text-white shadow-[0_3px_0_#2e4ec3] transition hover:brightness-105';
+  const inner = (
+    <>
+      <span aria-hidden className="absolute left-[18px] top-0 h-full w-[127px] bg-[linear-gradient(115deg,transparent_0_28%,rgba(255,255,255,0.18)_28%_44%,transparent_44%_52%,rgba(255,255,255,0.18)_52%_66%,transparent_66%)]" />
+      <span className="relative [text-shadow:0_1px_2px_rgba(0,0,0,0.15)]">{label}</span>
+    </>
+  );
   return (
     <div className="pointer-events-none sticky bottom-0 z-10 -mx-[142px] mt-16 max-md:static max-md:mx-0 max-md:mt-12">
       <div aria-hidden className="absolute inset-x-0 bottom-0 h-[325px] bg-[radial-gradient(60%_70%_at_50%_100%,rgba(69,109,255,0.22),rgba(69,109,255,0))]" />
       <div className="pointer-events-auto relative mx-auto mb-6 w-[min(457px,100%)] rounded-[33.7px] border-[1.7px] border-[#e5e5e5] bg-white px-[15px] pb-[15px] pt-[22px] text-center shadow-[0_8px_30px_rgba(69,109,255,0.10)] dark:border-white/15 dark:bg-[#1a1a1a]">
-        <p className="text-xl font-semibold leading-7 text-black dark:text-white">{lesson.title}</p>
-        <Link
-          to={`/app/watch/${lesson.id}`}
-          className="relative mt-[20px] flex h-[47px] items-center justify-center overflow-hidden rounded-[50px] bg-[#456dff] text-base font-semibold text-white shadow-[0_3px_0_#2e4ec3] transition hover:brightness-105"
-        >
-          <span aria-hidden className="absolute left-[18px] top-0 h-full w-[127px] bg-[linear-gradient(115deg,transparent_0_28%,rgba(255,255,255,0.18)_28%_44%,transparent_44%_52%,rgba(255,255,255,0.18)_52%_66%,transparent_66%)]" />
-          <span className="relative [text-shadow:0_1px_2px_rgba(0,0,0,0.15)]">{lesson.completed || lesson.positionSeconds ? 'Continue' : 'Start'}</span>
-        </Link>
+        <p className="text-xl font-semibold leading-7 text-black dark:text-white">{title}</p>
+        {external ? <a href={href} className={cls}>{inner}</a> : <Link to={href} className={cls}>{inner}</Link>}
       </div>
     </div>
   );

@@ -29,10 +29,10 @@ export type PlayableLesson = {
 
 export type OnSave = (position: number, done: boolean) => void;
 
-export function LessonBody({ lesson, onSave, onEnded }: { lesson: PlayableLesson; onSave: OnSave; onEnded?: () => void }) {
+export function LessonBody({ lesson, onSave, onEnded, onExit }: { lesson: PlayableLesson; onSave: OnSave; onEnded?: () => void; onExit?: () => void }) {
   if (lesson.kind === 'video') return <Player key={lesson.id} lesson={lesson} onSave={onSave} onEnded={onEnded} />;
   if (lesson.kind === 'article') return <Article key={lesson.id} lesson={lesson} onSave={onSave} />;
-  return <Interactive key={lesson.id} lesson={lesson} onSave={onSave} />;
+  return <Interactive key={lesson.id} lesson={lesson} onSave={onSave} onExit={onExit} />;
 }
 
 export function Unavailable({ message = "This lesson isn't available in this version of the app yet.", retry }: { message?: string; retry?: () => void }) {
@@ -93,8 +93,8 @@ function Player({ lesson, onSave, onEnded }: { lesson: PlayableLesson; onSave: O
   );
 }
 
-function Interactive({ lesson, onSave }: { lesson: PlayableLesson; onSave: OnSave }) {
-  if (lesson.moduleUrl) return <SandboxedLesson lesson={lesson} onSave={onSave} />;
+function Interactive({ lesson, onSave, onExit }: { lesson: PlayableLesson; onSave: OnSave; onExit?: () => void }) {
+  if (lesson.moduleUrl) return <SandboxedLesson lesson={lesson} onSave={onSave} onExit={onExit} />;
   const Built = lesson.contentRef ? interactives[lesson.contentRef] : undefined;
   if (!Built) return <Unavailable />;
   return (
@@ -108,9 +108,14 @@ function Interactive({ lesson, onSave }: { lesson: PlayableLesson; onSave: OnSav
 }
 
 /** An interactive lesson in the sealed lesson frame (lesson frame protocol 1). */
-function SandboxedLesson({ lesson, onSave }: { lesson: PlayableLesson; onSave: OnSave }) {
+function SandboxedLesson({ lesson, onSave, onExit }: { lesson: PlayableLesson; onSave: OnSave; onExit?: () => void }) {
   const frame = useRef<HTMLIFrameElement>(null);
   const [height, setHeight] = useState(0);
+  // `layout {full}`: the lesson is a whole player (the topic player) and asks
+  // for the screen, as the Electrical Machines app has it. `exit`: its close.
+  const [full, setFull] = useState(false);
+  const exit = useRef(onExit);
+  exit.current = onExit;
   const [shown, setShown] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -120,6 +125,7 @@ function SandboxedLesson({ lesson, onSave }: { lesson: PlayableLesson; onSave: O
   useEffect(() => {
     setShown(false);
     setError(null);
+    setFull(false);
     const abs = (u: string) => new URL(u, location.href).href;
     const timeout = window.setTimeout(() => setError((e) => e ?? 'This lesson is taking too long to load. Check your connection.'), 20000);
     const onMessage = (e: MessageEvent) => {
@@ -154,6 +160,12 @@ function SandboxedLesson({ lesson, onSave }: { lesson: PlayableLesson; onSave: O
         case 'complete':
           save.current(lesson.durationSeconds, true);
           break;
+        case 'layout':
+          setFull(m.full === true);
+          break;
+        case 'exit':
+          exit.current?.();
+          break;
         case 'error':
           clearTimeout(timeout);
           setError(String(m.message ?? 'This lesson hit a problem.'));
@@ -170,8 +182,18 @@ function SandboxedLesson({ lesson, onSave }: { lesson: PlayableLesson; onSave: O
     };
   }, [lesson.id, lesson.moduleUrl, lesson.cssUrls, lesson.title, lesson.durationSeconds, attempt]);
 
+  // No page scroll behind a full-screen lesson.
+  useEffect(() => {
+    if (!full) return;
+    const prev = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = 'hidden';
+    return () => {
+      document.documentElement.style.overflow = prev;
+    };
+  }, [full]);
+
   return (
-    <div className="lesson-frame">
+    <div className={full ? 'lesson-frame lesson-frame-full' : 'lesson-frame'}>
       {error && <Unavailable message={`This lesson didn't load. ${error}`} retry={() => setAttempt((n) => n + 1)} />}
       {!shown && !error && <div className="skeleton" style={{ aspectRatio: '16 / 9' }} />}
       <iframe
@@ -181,7 +203,7 @@ function SandboxedLesson({ lesson, onSave }: { lesson: PlayableLesson; onSave: O
         sandbox="allow-scripts"
         title={lesson.title}
         loading="eager"
-        style={{ width: '100%', height: shown ? height : 0, border: 0, display: 'block', colorScheme: 'normal' }}
+        style={{ width: '100%', height: shown ? (full ? '100%' : height) : 0, border: 0, display: 'block', colorScheme: 'normal' }}
       />
     </div>
   );

@@ -163,6 +163,8 @@ a.list-item:hover { background: var(--bg-soft); }
 
 /* ── Teacher tools, review and the teacher guide ─────────────────────── */
 .lesson-frame { width: 100%; }
+/* A lesson that asked for the whole screen (lesson frame `layout`). */
+.lesson-frame-full { position: fixed; inset: 0; z-index: 80; background: #f7f7f5; }
 .code { position: relative; margin: 8px 0 0; }
 .code pre { margin: 0; padding: 12px 14px; padding-right: 74px; border-radius: 8px; background: var(--bg-soft); border: 1px solid var(--border);
   font: 0.85rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; word-break: break-word; overflow-x: auto; }

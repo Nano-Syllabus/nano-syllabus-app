@@ -8,6 +8,7 @@
 // Lesson frame protocol 1 (the same as nano-syllabus-toolkit
 // engine/frame/frame.jsx, which runs `ns preview`; keep them in step):
 //   frame → page  hello · shown · height {value} · progress {value 0..1} · complete · error {message}
+//                 layout {full: bool} (the lesson asks for the whole screen) · exit (the lesson's close button)
 //   page → frame  init {moduleUrl, cssUrls, lesson, theme?} · theme {theme}
 // Every message is { ns: 1, type, … }.
 //
@@ -84,6 +85,8 @@ window.addEventListener('message', async (e: MessageEvent<Msg>) => {
           lesson={m.lesson}
           onComplete={() => send({ type: 'complete' })}
           onProgress={(f: number) => send({ type: 'progress', value: Math.max(0, Math.min(1, Number(f) || 0)) })}
+          onLayout={(l: { full?: boolean }) => send({ type: 'layout', full: l?.full === true })}
+          onExit={() => send({ type: 'exit' })}
         />
       </Boundary>,
     );

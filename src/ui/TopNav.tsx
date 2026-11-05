@@ -72,7 +72,7 @@ function Menu() {
     document.addEventListener('keydown', esc);
     return () => { document.removeEventListener('mousedown', close); document.removeEventListener('keydown', esc); };
   }, [open]);
-  const row = 'flex h-16 w-full cursor-pointer items-center px-[18px] text-left text-[15px] text-white transition hover:bg-white/[0.06]';
+  const row = 'flex h-16 w-full cursor-pointer items-center px-[18px] text-left text-[15px] text-[#1a1a1a] transition hover:bg-black/[0.04] dark:text-white dark:hover:bg-white/[0.06]';
   const go = (to: string) => { setOpen(false); navigate(to); };
   return (
     <div className="relative" ref={box}>
@@ -87,28 +87,28 @@ function Menu() {
       </button>
       {open ? (
         <div className="absolute right-[-6px] top-[46px] z-50 w-[251px]">
-          <span className="absolute -top-[7px] right-[14px] h-0 w-0 border-x-[8px] border-b-[8px] border-x-transparent border-b-[#1f1f1f]" aria-hidden />
-          <div role="menu" className="overflow-hidden rounded-xl bg-[#1f1f1f] shadow-[0_12px_32px_rgba(0,0,0,0.28)] [&>*+*]:border-t [&>*+*]:border-white/[0.06]">
+          <span className="absolute -top-[7px] right-[14px] h-0 w-0 border-x-[8px] border-b-[8px] border-x-transparent border-b-white dark:border-b-[#1f1f1f]" aria-hidden />
+          <div role="menu" className="overflow-hidden rounded-xl bg-white shadow-[0_12px_32px_rgba(0,0,0,0.14)] ring-1 ring-black/[0.06] dark:bg-[#1f1f1f] dark:shadow-[0_12px_32px_rgba(0,0,0,0.28)] dark:ring-0 [&>*+*]:border-t [&>*+*]:border-black/[0.06] dark:[&>*+*]:border-white/[0.06]">
             {user?.role === 'teacher' || user?.role === 'admin' ? <button role="menuitem" className={row} onClick={() => go('/app/teach')}>Teach</button> : null}
             {user?.role === 'admin' ? <button role="menuitem" className={row} onClick={() => go('/app/admin')}>Admin</button> : null}
             <button role="menuitem" className={row} aria-expanded={settings} onClick={() => setSettings((s) => !s)}>Settings</button>
             {settings ? (
-              <div className="flex items-center justify-between px-[18px] py-3 text-sm text-white/80">
+              <div className="flex items-center justify-between px-[18px] py-3 text-sm text-[#555] dark:text-white/80">
                 <span>
                   Course
-                  <span className="ml-2 font-semibold text-white">{PROGRAMS.find((p) => p.slug === user?.program)?.short ?? PROGRAMS.find((p) => !p.soon)?.short}</span>
+                  <span className="ml-2 font-semibold text-[#1a1a1a] dark:text-white">{PROGRAMS.find((p) => p.slug === user?.program)?.short ?? PROGRAMS.find((p) => !p.soon)?.short}</span>
                 </span>
-                <button type="button" onClick={() => go('/courses')} className="cursor-pointer rounded-md bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/20">
+                <button type="button" onClick={() => go('/courses')} className="cursor-pointer rounded-md bg-black/[0.06] px-3 py-1 text-xs text-[#1a1a1a] hover:bg-black/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20">
                   Change
                 </button>
               </div>
             ) : null}
             {settings ? (
-              <div className="flex items-center justify-between px-[18px] py-3 text-sm text-white/80">
+              <div className="flex items-center justify-between px-[18px] py-3 text-sm text-[#555] dark:text-white/80">
                 Theme
-                <span className="flex rounded-lg bg-white/10 p-0.5">
+                <span className="flex rounded-lg bg-black/[0.06] p-0.5 dark:bg-white/10">
                   {(['light', 'dark'] as const).map((t) => (
-                    <button key={t} type="button" onClick={() => setTheme(t)} className={'cursor-pointer rounded-md px-3 py-1 text-xs capitalize ' + (theme === t ? 'bg-white text-[#1f1f1f]' : 'text-white/80')}>
+                    <button key={t} type="button" onClick={() => setTheme(t)} className={'cursor-pointer rounded-md px-3 py-1 text-xs capitalize ' + (theme === t ? 'bg-white text-[#1f1f1f] shadow-sm' : 'text-[#555] dark:text-white/80')}>
                       {t}
                     </button>
                   ))}

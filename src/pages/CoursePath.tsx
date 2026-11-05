@@ -10,12 +10,28 @@ import { useAuth } from '../lib/auth';
 import { config } from '../lib/config';
 import { SITE, useSeo } from '../lib/seo';
 import type { CourseDetail, LessonSummary, SubjectDetail } from '../lib/types';
+import AppCoursePath from './AppCoursePath';
 import { StartCard, Stop, SubjectCard, UnitHeader } from './Subject';
 import { subjectIcon } from './Topics';
 
 const unitTitle = (t: string) => t.replace(/^Unit \d+\s*·\s*/, '');
 
 export default function CoursePath() {
+  const { slug = '' } = useParams();
+  // A course that is its own app shows that app's outline (see AppCoursePath).
+  return config.appCourses[slug] ? <AppPath key={slug} slug={slug} /> : <PlainCoursePath key={slug} />;
+}
+
+function AppPath({ slug }: { slug: string }) {
+  const { data: c, error } = useQuery<CourseDetail>(`course:${slug}`, `/api/courses/${encodeURIComponent(slug)}`);
+  useSeo({ title: `${c?.title ?? 'Course'} · ${SITE}`, noindex: true });
+  if (error?.status === 404) return <NotFound />;
+  if (error) return <main className="mx-auto w-[min(1030px,100%-32px)] py-16"><ErrorBox message={error.message} retry={() => location.reload()} /></main>;
+  if (!c) return <div className="mx-auto grid w-[min(1030px,100%-32px)] gap-16 py-16 md:grid-cols-[482px_1fr]"><div className="h-[332px] animate-pulse rounded-[26px] bg-[#f5f6f8] dark:bg-white/5" /></div>;
+  return <AppCoursePath slug={slug} app={config.appCourses[slug]} c={c} />;
+}
+
+function PlainCoursePath() {
   const { slug = '' } = useParams();
   const { user } = useAuth();
   const { data: c, error } = useQuery<CourseDetail>(`course:${slug}`, `/api/courses/${encodeURIComponent(slug)}`);

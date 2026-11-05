@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { ErrorBox, NotFound } from '../components/bits';
 import { prefetchLesson } from '../content/host';
 import { LessonBody } from '../content/LessonBody';
@@ -7,6 +7,7 @@ import { api, invalidate, prefetch, setCached, useQuery } from '../lib/api';
 import { duration } from '../lib/format';
 import { SITE, useSeo } from '../lib/seo';
 import type { Lesson, SubjectDetail } from '../lib/types';
+import { config } from '../lib/config';
 import { Bolt, Sparkles, usePoints } from '../ui/TopNav';
 
 export default function Watch() {
@@ -52,6 +53,9 @@ export default function Watch() {
 
   if (error?.status === 404) return <NotFound />;
   if (error) return <main className="wrap page"><ErrorBox message={error.message} retry={() => location.reload()} /></main>;
+  // A course that is its own app (Electrical Machines) is played from its
+  // course path only; its old lesson pages go there.
+  if (l && config.appCourses[l.course.slug]) return <Navigate to={`/app/courses/${l.course.slug}`} replace />;
   if (!l) return <div className="min-h-[100dvh] bg-white p-4 dark:bg-[#121214]"><div className="mt-16 aspect-video w-full max-w-[1160px] animate-pulse rounded-lg bg-[#f2f3f5] dark:bg-white/5" /></div>;
 
   const lessons = subject?.lessons ?? [];
@@ -97,7 +101,7 @@ export default function Watch() {
                 <Link className="mt-2 rounded-full bg-[#456dff] px-6 py-3 text-sm font-semibold text-white shadow-[0_3px_0_#2e4ec3]" to={`/app/premium/${l.course.slug}`}>Unlock the course</Link>
               </div>
             ) : (
-              <LessonBody lesson={l} onSave={save} onEnded={() => l.nextId && navigate(`/app/watch/${l.nextId}`)} />
+              <LessonBody lesson={l} onSave={save} onEnded={() => l.nextId && navigate(`/app/watch/${l.nextId}`)} onExit={() => navigate(back)} />
             )}
           </div>
           <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -159,3 +163,4 @@ function WatchStats() {
     </span>
   );
 }
+
