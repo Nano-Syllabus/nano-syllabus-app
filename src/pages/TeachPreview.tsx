@@ -69,7 +69,7 @@ export default function TeachPreview() {
         <StatusBadge status={s.status} />
       </div>
       <p className="muted small" style={{ margin: 0 }}>
-        by {s.teacher.title} ({s.teacher.slug}) · pushed {when(s.createdAt)} {s.via === 'mcp' ? 'via MCP' : 'with ns push'} · {s.lessons} lessons · preview only, nothing is saved
+        by {s.teacher.title} ({s.teacher.slug}) · pushed {when(s.createdAt)} {s.via === 'mcp' ? 'via MCP' : s.via === 'rebuild' ? 'as a rebuild' : 'with ns push'} · {s.lessons} lessons · preview only, nothing is saved
       </p>
       {s.note && <div className="alert"><b>Teacher's note:</b> {s.note}</div>}
       {s.reviewNote && <div className={s.status === 'rejected' ? 'alert alert-error' : 'alert alert-success'}><b>{s.reviewedBy || 'Reviewer'}:</b> {s.reviewNote}</div>}

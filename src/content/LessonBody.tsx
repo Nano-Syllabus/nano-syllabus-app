@@ -231,6 +231,7 @@ function SandboxedLesson({ lesson, onSave, onExit }: { lesson: PlayableLesson; o
         ref={frame}
         src="/lesson-frame.html"
         sandbox="allow-scripts"
+        allow="autoplay"
         title={lesson.title}
         loading="eager"
         style={{ width: '100%', height: shown ? (full ? '100%' : height) : 0, border: 0, display: 'block', colorScheme: 'normal' }}

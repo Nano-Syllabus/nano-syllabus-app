@@ -103,7 +103,7 @@ function TeacherHome() {
                 <StatusBadge status={s.status} />
               </div>
               <span className="muted small">
-                {when(s.createdAt)} · {s.via === 'mcp' ? 'via MCP' : 'ns push'}
+                {when(s.createdAt)} · {s.via === 'mcp' ? 'via MCP' : s.via === 'rebuild' ? 'rebuild' : 'ns push'}
                 {s.lessons ? ` · ${s.lessons} lessons` : ''}
                 {s.report?.warnings?.length ? ` · ${s.report.warnings.length} warnings` : ''}
               </span>

@@ -129,7 +129,7 @@ export type Submission = {
   courseSlug: string;
   courseTitle: string;
   status: SubmissionStatus;
-  via: 'cli' | 'mcp';
+  via: 'cli' | 'mcp' | 'rebuild';
   note: string;
   bytes: number;
   lessons: number;
@@ -142,6 +142,20 @@ export type Submission = {
   previewUrl?: string;
   liveUrl?: string;
 };
+
+export type CourseVersion = {
+  version: number;
+  submissionId: number;
+  live: boolean;
+  lessons: number;
+  note: string;
+  via: string;
+  toolkit: string;
+  publishedBy: string;
+  publishedAt: string;
+};
+
+export type VersionedCourse = { slug: string; title: string; liveVersion: number; waiting: number; versions: CourseVersion[] };
 
 export type ApiToken = { id: number; name: string; hint: string; createdAt: string; lastUsedAt: string | null };
 

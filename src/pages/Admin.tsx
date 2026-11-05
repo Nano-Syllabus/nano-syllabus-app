@@ -4,13 +4,13 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ErrorBox, NotFound } from '../components/bits';
 import { StatusBadge, when } from '../components/teach';
-import { api, invalidate, prefetch, useQuery } from '../lib/api';
+import { api, invalidate, prefetch, setCached, useQuery } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { SITE, useSeo } from '../lib/seo';
-import type { StaffMember, Submission } from '../lib/types';
+import type { StaffMember, Submission, VersionedCourse } from '../lib/types';
 
-type Tab = 'review' | 'payments' | 'all' | 'teachers';
-const TAB_LABEL: Record<Tab, string> = { review: 'Review queue', payments: 'Payments', all: 'All submissions', teachers: 'Teachers' };
+type Tab = 'review' | 'payments' | 'all' | 'versions' | 'teachers';
+const TAB_LABEL: Record<Tab, string> = { review: 'Review queue', payments: 'Payments', all: 'All submissions', versions: 'Course versions', teachers: 'Teachers' };
 
 export default function Admin() {
   const { user } = useAuth();
@@ -21,13 +21,13 @@ export default function Admin() {
     <main className="wrap page stack">
       <h1>Admin</h1>
       <div className="tabs" role="tablist">
-        {(['review', 'payments', 'all', 'teachers'] as Tab[]).map((t) => (
+        {(['review', 'payments', 'all', 'versions', 'teachers'] as Tab[]).map((t) => (
           <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)}>
             {TAB_LABEL[t]}
           </button>
         ))}
       </div>
-      {tab === 'teachers' ? <Teachers /> : tab === 'payments' ? <Payments /> : <Submissions status={tab === 'review' ? 'review' : ''} />}
+      {tab === 'teachers' ? <Teachers /> : tab === 'versions' ? <CourseVersions /> : tab === 'payments' ? <Payments /> : <Submissions status={tab === 'review' ? 'review' : ''} />}
     </main>
   );
 }
@@ -55,6 +55,91 @@ function Submissions({ status }: { status: string }) {
           {s.note && <span className="small">“{s.note}”</span>}
         </Link>
       ))}
+    </div>
+  );
+}
+
+// Every approved push is a numbered version. Restore puts an older one back
+// at once (it was approved already); Rebuild runs the live source through
+// today's toolkit and sends the result to the review queue.
+function CourseVersions() {
+  const key = 'admin:versions';
+  const { data, error } = useQuery<{ courses: VersionedCourse[]; toolkit: string }>(key, '/api/admin/course-versions');
+  const [busy, setBusy] = useState('');
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  if (error) return <ErrorBox message={error.message} retry={() => location.reload()} />;
+  if (!data) return <div className="skeleton" style={{ height: 200 }} />;
+  if (!data.courses.length) return <p className="muted">No versions yet. A course gets version 1 when its first push is approved.</p>;
+
+  const run = async (id: string, url: string, done: string) => {
+    setBusy(id);
+    setMsg(null);
+    try {
+      await api(url, { method: 'POST', body: {} });
+      // This page stays mounted, so it fetches its own list: invalidating its
+      // key would leave it on the skeleton.
+      const next = await api<{ courses: VersionedCourse[]; toolkit: string }>('/api/admin/course-versions');
+      setCached(key, () => next);
+      setMsg({ ok: true, text: done });
+      invalidate('admin:subs:', 'courses', 'home');
+    } catch (e) {
+      setMsg({ ok: false, text: (e as Error).message });
+    } finally {
+      setBusy('');
+    }
+  };
+
+  return (
+    <div className="stack">
+      {msg && <div className={msg.ok ? 'alert alert-success' : 'alert alert-error'}>{msg.text}</div>}
+      {data.courses.map((c) => {
+        const live = c.versions.find((v) => v.live);
+        const behind = !!live && !!data.toolkit && live.toolkit !== data.toolkit;
+        return (
+          <section key={c.slug} className="card stack">
+            <div className="row" style={{ flexWrap: 'wrap' }}>
+              <b style={{ flex: 1, minWidth: 180 }}>{c.title}</b>
+              {c.waiting > 0 ? (
+                <Link className="btn btn-ghost" to={`/app/teach/preview/${c.waiting}`}>Push #{c.waiting} is waiting</Link>
+              ) : (
+                <button className="btn" disabled={!!busy} onClick={() => void run(`rebuild:${c.slug}`, `/api/admin/course-versions/${encodeURIComponent(c.slug)}/rebuild`, `${c.title}: rebuilding. It appears in the review queue in a minute or two; students see nothing new until you approve it.`)}>
+                  Rebuild with latest toolkit
+                </button>
+              )}
+            </div>
+            <span className="muted small">
+              {live ? `Version ${live.version} is live.` : 'No live version.'} {behind ? 'A newer toolkit is available.' : live ? 'Built with the current toolkit.' : ''}
+            </span>
+            <div className="rows">
+              {c.versions.map((v) => (
+                <div key={v.version} className="row" style={{ flexWrap: 'wrap' }}>
+                  <span style={{ flex: 1, minWidth: 200 }}>
+                    <b>v{v.version}</b>{v.live ? ' · live' : ''}
+                    <span className="muted small" style={{ display: 'block' }}>
+                      {when(v.publishedAt)}{v.publishedBy ? ` · ${v.publishedBy}` : ''} · {v.lessons} {v.lessons === 1 ? 'lesson' : 'lessons'}{v.via === 'rebuild' ? ' · rebuild' : ''}
+                    </span>
+                    {v.note && <span className="small" style={{ display: 'block' }}>“{v.note}”</span>}
+                  </span>
+                  <Link className="btn btn-ghost" to={`/app/teach/preview/${v.submissionId}`}>Preview</Link>
+                  {!v.live && (
+                    <button
+                      className="btn"
+                      disabled={!!busy}
+                      onClick={() => {
+                        if (confirm(`Put version ${v.version} of "${c.title}" live for every student now?`)) {
+                          void run(`restore:${c.slug}:${v.version}`, `/api/admin/course-versions/${encodeURIComponent(c.slug)}/${v.version}/restore`, `${c.title}: version ${v.version} is live.`);
+                        }
+                      }}
+                    >
+                      Make live
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        );
+      })}
     </div>
   );
 }
