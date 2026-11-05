@@ -23,7 +23,10 @@ export type CourseCard = {
   lessonCount: number;
 };
 
-export type SubjectSummary = { slug: string; title: string; description: string; lessonCount: number; done: number };
+/** One syllabus topic of a unit; soon = no lesson yet. */
+export type Topic = { id: string; title: string; soon?: boolean };
+
+export type SubjectSummary = { slug: string; title: string; description: string; lessonCount: number; done: number; topics?: Topic[] };
 
 export type CourseDetail = CourseCard & {
   description: string;
@@ -43,6 +46,8 @@ export type LessonSummary = {
   isPreview: boolean;
   completed: boolean;
   positionSeconds: number;
+  /** The syllabus topic it covers ("4.1"), for courses made in the toolkit. */
+  topic?: string;
 };
 
 export type Ref = { slug: string; title: string };

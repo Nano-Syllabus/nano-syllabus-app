@@ -9,7 +9,7 @@ import { useQueries, useQuery } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { SITE, useSeo } from '../lib/seo';
 import type { CourseDetail, LessonSummary, SubjectDetail } from '../lib/types';
-import { StartCard, Stop, SubjectCard, UnitHeader } from './Subject';
+import { PathStop, StartCard, Stop, SubjectCard, UnitHeader } from './Subject';
 import { subjectIcon } from './Topics';
 
 const unitTitle = (t: string) => t.replace(/^Unit \d+\s*·\s*/, '');
@@ -68,14 +68,29 @@ function PlainCoursePath() {
       <section className="relative min-w-0">
         {c.subjects.map((s, ui) => {
           const lessons = lessonsOf.get(s.slug) ?? [];
+          // Every syllabus topic is a stop: its lesson(s), or a greyed "Coming soon"
+          // stop. Lessons that name no topic follow in their own order.
+          const stops: ({ lesson: LessonSummary } | { soon: string; key: string })[] = [];
+          for (const t of s.topics ?? []) {
+            const of = lessons.filter((l) => l.topic === t.id);
+            if (of.length) of.forEach((l) => stops.push({ lesson: l }));
+            else stops.push({ soon: t.title, key: `t-${t.id}` });
+          }
+          const known = new Set((s.topics ?? []).map((t) => t.id));
+          lessons.filter((l) => !l.topic || !known.has(l.topic)).forEach((l) => stops.push({ lesson: l }));
+          const prev = ui ? c.subjects[ui - 1] : null;
           return (
-            <div key={s.slug} className={!ui ? '' : (lessonsOf.get(c.subjects[ui - 1].slug) ?? []).length ? 'mt-[72px]' : 'mt-8'}>
+            <div key={s.slug} className={!prev ? '' : (lessonsOf.get(prev.slug) ?? []).length || prev.topics?.length ? 'mt-[72px]' : 'mt-8'}>
               <UnitHeader no={ui + 1} title={unitTitle(s.title)} />
-              {lessons.length ? (
+              {stops.length ? (
                 <ol className="mt-[64px] space-y-[64px] pl-[42px] max-md:mt-10 max-md:space-y-10 max-sm:pl-0">
-                  {lessons.map((l, i) => (
-                    <Stop key={l.id} l={l} i={i} current={current?.id === l.id} open={canOpen(l)} href={canOpen(l) ? `/app/watch/${l.id}` : premium} />
-                  ))}
+                  {stops.map((x, i) =>
+                    'lesson' in x ? (
+                      <Stop key={x.lesson.id} l={x.lesson} i={i} current={current?.id === x.lesson.id} open={canOpen(x.lesson)} href={canOpen(x.lesson) ? `/app/watch/${x.lesson.id}` : premium} />
+                    ) : (
+                      <PathStop key={x.key} title={x.soon} i={i} filled={0} done={false} current={false} open={false} href={null} soon />
+                    ),
+                  )}
                 </ol>
               ) : (
                 <p className="mt-4 text-center text-sm text-[#858582] dark:text-[#8a8a8a]">Lessons for this unit are coming soon.</p>

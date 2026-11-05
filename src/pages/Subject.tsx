@@ -29,16 +29,17 @@ export function Stop({ l, i, current, open, href }: { l: LessonSummary; i: numbe
 }
 
 /** One stop on the winding path. `external` links leave the SPA (e.g. /em/). */
-export function PathStop({ title, i, filled, done, current, open, href, external, note }: { title: string; i: number; filled: number; done: boolean; current: boolean; open: boolean; href: string | null; external?: boolean; note?: string }) {
+export function PathStop({ title, i, filled, done, current, open, href, external, note, soon }: { title: string; i: number; filled: number; done: boolean; current: boolean; open: boolean; href: string | null; external?: boolean; note?: string; soon?: boolean }) {
   const x = ZIG[i % ZIG.length];
   const label = (
     <span className="flex min-w-0 flex-col gap-[5px]">
       <Bars filled={filled} active={current} />
-      <span className={'text-sm font-semibold leading-5 ' + (current ? 'text-[#2e4ec3] dark:text-[#8ea4ff]' : done ? 'text-[#18251e] dark:text-[#dae7e0]' : 'text-[#595959] dark:text-[#9a9a9a]')}>
+      <span className={'text-sm font-semibold leading-5 ' + (soon ? 'text-[#a3a3a3] dark:text-[#6b6b6b]' : current ? 'text-[#2e4ec3] dark:text-[#8ea4ff]' : done ? 'text-[#18251e] dark:text-[#dae7e0]' : 'text-[#595959] dark:text-[#9a9a9a]')}>
         {title}
         {note ? <span className="ml-1.5 align-middle text-[11px] font-medium text-[#1c8a4a] dark:text-[#4ade80]">· {note}</span> : null}
-        {!open ? <span className="ml-1.5 align-middle text-[11px] font-medium text-[#858582]">· Locked</span> : null}
+        {!open && !soon ? <span className="ml-1.5 align-middle text-[11px] font-medium text-[#858582]">· Locked</span> : null}
       </span>
+      {soon ? <span className="w-max rounded-full bg-[#f1f2f4] px-2 py-[1px] text-[11px] font-medium text-[#8a8a8a] dark:bg-white/[0.06] dark:text-[#7a7a7a]">Coming soon</span> : null}
     </span>
   );
   const body = (
@@ -52,7 +53,7 @@ export function PathStop({ title, i, filled, done, current, open, href, external
             width={93}
             height={56}
             alt=""
-            className={'h-[56px] w-[93px] transition group-hover:scale-105 ' + (done ? '[filter:sepia(1)_saturate(6)_hue-rotate(195deg)_brightness(0.95)]' : 'dark:opacity-60')}
+            className={'h-[56px] w-[93px] transition ' + (soon ? 'opacity-45 grayscale dark:opacity-30' : 'group-hover:scale-105 ' + (done ? '[filter:sepia(1)_saturate(6)_hue-rotate(195deg)_brightness(0.95)]' : 'dark:opacity-60'))}
           />
         </span>
       )}
@@ -62,7 +63,7 @@ export function PathStop({ title, i, filled, done, current, open, href, external
   const props = {
     className: 'group flex w-max max-w-full items-center gap-[21px]' + (href ? '' : ' cursor-default'),
     'aria-current': current ? ('step' as const) : undefined,
-    'aria-label': `${title}${done ? ', done' : current ? ', up next' : ''}${open ? '' : ', locked'}`,
+    'aria-label': `${title}${soon ? ', coming soon' : done ? ', done' : current ? ', up next' : ''}${open || soon ? '' : ', locked'}`,
   };
   return (
     <li className="relative" style={{ paddingLeft: `min(${x}px, 22vw)` }}>

@@ -7,7 +7,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import type { Home } from '../lib/types';
-import { PROGRAMS } from '../data/curriculum';
+import { usePrograms } from '../data/curriculum';
 import { getTheme, onTheme, setTheme, type Theme } from './theme';
 
 const ico = { width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.9, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true } as const;
@@ -57,6 +57,7 @@ export function NavStats() {
 }
 
 function Menu() {
+  const PROGRAMS = usePrograms();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);

@@ -1,8 +1,13 @@
-// Programs shown on /app/topics, semester by semester. Source:
+// Programs shown on /app/topics, semester by semester. They come from the
+// server (GET /api/programs: programs/*.json pushed from the toolkit by an
+// admin); PROGRAMS below is only the fallback until the first such push.
+// Fallback source:
 // https://ioe.tu.edu.np/pages/electronics-engineering-curriculum-structure-2660
 // (read 2026-11-05). Projects and the internship are left out: they are not
 // taught subjects. `course` names the catalogue course that teaches a subject;
 // a subject without one, or whose course has no lessons yet, shows "Coming soon".
+
+import { useQuery } from '../lib/api';
 
 export type CurriculumSubject = { code: string; title: string; course?: string };
 export type Semester = { no: number; part: string; subjects: CurriculumSubject[] };
@@ -11,9 +16,9 @@ export type Program = {
   short: string;
   name: string;
   university: string;
-  level: 'Bachelor' | 'Master' | 'Diploma';
+  level: 'Bachelor' | 'Master' | 'Diploma' | string;
   years: number;
-  icon: 'chip' | 'code';
+  icon?: 'chip' | 'code' | string;
   /** Listed on Explore but not open yet. */
   soon?: boolean;
   semesters: Semester[];
@@ -143,3 +148,11 @@ export const LEVELS: { id: Program['level']; label: string }[] = [
 
 /** Every course a program links to (so the page knows which ones to load). */
 export const linkedCourses = (p: Program) => p.semesters.flatMap((s) => s.subjects.flatMap((x) => (x.course ? [x.course] : [])));
+
+/** The programmes to show: the server's (pushed from the toolkit), else the
+ *  fallback above. Cache-first like every other query. */
+export function usePrograms(): Program[] {
+  const { data } = useQuery<{ programs: Program[] }>('programs', '/api/programs');
+  const list = data?.programs?.filter((p) => p && p.slug && Array.isArray(p.semesters));
+  return list?.length ? list : PROGRAMS;
+}

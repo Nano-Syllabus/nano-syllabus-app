@@ -6,7 +6,7 @@
 // program lists (the free taster) sit under "Free to try".
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LEVELS, PROGRAMS, UNIVERSITIES, linkedCourses, type Program } from '../data/curriculum';
+import { LEVELS, UNIVERSITIES, linkedCourses, usePrograms, type Program } from '../data/curriculum';
 import { api, useQuery } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { SITE, useSeo } from '../lib/seo';
@@ -114,6 +114,7 @@ const placeOf = (p: Program) => (p.university === 'IOE' ? 'IOE, Tribhuvan Univer
 export default function Explore() {
   useSeo({ title: `Explore courses · ${SITE}`, description: 'Pick your program and study it semester by semester with short interactive video lessons.', path: '/courses' });
   const { user, setUser } = useAuth();
+  const PROGRAMS = usePrograms();
   // Save the pick on the account; the card's link has already moved on.
   const pick = (slug: string) => {
     if (user) setUser({ ...user, program: slug });
@@ -151,14 +152,14 @@ export default function Explore() {
         (!term || `${p.short} ${p.name} ${p.university}`.toLowerCase().includes(term)),
     );
     return list.sort((a, b) => (sort === 'name' ? a.short.localeCompare(b.short) : Number(!!a.soon) - Number(!!b.soon)));
-  }, [q, applied, sort]);
+  }, [q, applied, sort, PROGRAMS]);
 
   // Catalogue courses no program lists, e.g. the free taster.
   const extra = useMemo(() => {
     const linked = new Set(PROGRAMS.flatMap(linkedCourses));
     const term = q.trim().toLowerCase();
     return (data?.courses ?? []).filter((c) => !linked.has(c.slug) && (!term || `${c.title} ${c.tagline}`.toLowerCase().includes(term)));
-  }, [data, q]);
+  }, [data, q, PROGRAMS]);
 
   const reset = () => {
     setUni(null);

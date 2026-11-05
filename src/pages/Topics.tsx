@@ -10,7 +10,7 @@ import { useAuth } from '../lib/auth';
 import { SITE, useSeo } from '../lib/seo';
 import type { CourseCard, CourseDetail, User } from '../lib/types';
 import { Bolt } from '../ui/TopNav';
-import { PROGRAMS, type Semester } from '../data/curriculum';
+import { usePrograms, type Semester } from '../data/curriculum';
 
 const ICONS: [RegExp, string][] = [
   [/physic|motor|machine|magnet|field|wave|electromag|antenna|propagation|microwave/i, 'ic-physics'],
@@ -179,6 +179,7 @@ function SemesterRow({ sem, courses, starred, onStar }: { sem: Semester; courses
 export default function Topics() {
   const { program = '' } = useParams();
   const { user, setUser } = useAuth();
+  const PROGRAMS = usePrograms();
   const open = (slug?: string) => PROGRAMS.find((x) => x.slug === slug && !x.soon);
   const p = open(program);
   useSeo({ title: `${p?.short ?? 'Topics'} · ${SITE}`, noindex: true });
