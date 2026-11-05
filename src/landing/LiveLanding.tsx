@@ -85,24 +85,56 @@ const faqs = [
   { q: 'Can it replace my classes or teacher?', a: 'No. It works alongside them for understanding, practice and revision.' },
 ];
 
-/* The player controls drawn over the poster, as in the frame. */
+/* The demo video player, styled as in the frame: big play button, a seek
+   bar, the time, and the control row. Icons are the frame's own. */
 const ctl = (d: React.ReactNode, w = 26) => (
   <svg width="25" height="25" viewBox={`0 0 ${w} ${w}`} fill="none" aria-hidden="true">{d}</svg>
 );
 const S = { stroke: '#fff', strokeOpacity: 0.9, strokeWidth: 1.625, strokeLinecap: 'round', strokeLinejoin: 'round' } as const;
-const controls = [
-  ctl(<><path {...S} d="M21.93 7.82v10.37c0 2.12-2.31 3.46-4.15 2.39l-4.5-2.59-4.5-2.6c-1.84-1.06-1.84-3.71 0-4.77l4.5-2.6 4.5-2.59c1.84-1.06 4.15.26 4.15 2.39Z" /><path {...S} d="M4.07 19.7V6.3" /></>),
-  ctl(<><path {...S} d="M4.07 7.82v10.37c0 2.12 2.31 3.46 4.15 2.39l4.5-2.59 4.5-2.6c1.84-1.06 1.84-3.71 0-4.77l-4.5-2.6-4.5-2.59C6.38 4.37 4.07 5.69 4.07 7.82Z" /><path {...S} d="M21.93 19.7V6.3" /></>),
-  'sep',
-  ctl(<path fill="#fff" fillOpacity=".9" d="M19.094 16.86c-.724 0-1.392.253-1.915.677l-5.26-3.806a3.85 3.85 0 0 0 0-1.462l5.26-3.806a3.047 3.047 0 1 0-1.013-1.524l-4.997 3.618a4.063 4.063 0 1 0 0 4.885l4.997 3.618a3.047 3.047 0 1 0 2.928-2.2Zm0-12.087a1.32 1.32 0 1 1 0 2.64 1.32 1.32 0 0 1 0-2.64ZM7.922 15.234a2.234 2.234 0 1 1 0-4.468 2.234 2.234 0 0 1 0 4.468Zm11.172 5.993a1.32 1.32 0 1 1 0-2.64 1.32 1.32 0 0 1 0 2.64Z" />),
-  ctl(<><path {...S} strokeLinecap="butt" strokeLinejoin="miter" d="M2.17 10.83v4.34c0 2.16 1.08 3.25 3.25 3.25h1.55c.4 0 .8.12 1.14.32l3.17 1.98c2.73 1.71 4.97.47 4.97-2.75V8.03c0-3.23-2.24-4.47-4.97-2.75L8.11 7.26c-.34.2-.74.32-1.14.32H5.42c-2.17 0-3.25 1.09-3.25 3.25Z" /><path {...S} d="M19.5 8.67a7.2 7.2 0 0 1 0 8.66M21.48 5.96a11.9 11.9 0 0 1 0 14.08" /></>),
-  ctl(<><path {...S} strokeWidth={1.6} d="M8.29 22.2h6.42c5.35 0 7.49-2.14 7.49-7.49V8.29c0-5.35-2.14-7.49-7.49-7.49H8.29C2.94.8.8 2.94.8 8.29v6.42c0 5.35 2.14 7.49 7.49 7.49ZM17.38 16.93h-1.97M12.54 16.93H5.62M17.38 12.91h-5.91M8.58 12.91H5.62" /></>, 23),
-  ctl(<><path {...S} d="M9.75 23.83h6.5c5.42 0 7.58-2.16 7.58-7.58v-6.5c0-5.42-2.16-7.58-7.58-7.58h-6.5c-5.42 0-7.58 2.16-7.58 7.58v6.5c0 5.42 2.16 7.58 7.58 7.58Z" /><path {...S} d="M13.65 20.04h4.12c1.62 0 2.27-.65 2.27-2.27v-1.95c0-1.63-.65-2.28-2.27-2.28h-4.12c-1.62 0-2.27.65-2.27 2.28v1.95c0 1.62.65 2.27 2.27 2.27Z" /></>),
-];
+const SPEAKER = <path {...S} strokeLinecap="butt" strokeLinejoin="miter" d="M2.17 10.83v4.34c0 2.16 1.08 3.25 3.25 3.25h1.55c.4 0 .8.12 1.14.32l3.17 1.98c2.73 1.71 4.97.47 4.97-2.75V8.03c0-3.23-2.24-4.47-4.97-2.75L8.11 7.26c-.34.2-.74.32-1.14.32H5.42c-2.17 0-3.25 1.09-3.25 3.25Z" />;
+const I = {
+  back: ctl(<><path {...S} d="M21.93 7.82v10.37c0 2.12-2.31 3.46-4.15 2.39l-4.5-2.59-4.5-2.6c-1.84-1.06-1.84-3.71 0-4.77l4.5-2.6 4.5-2.59c1.84-1.06 4.15.26 4.15 2.39Z" /><path {...S} d="M4.07 19.7V6.3" /></>),
+  fwd: ctl(<><path {...S} d="M4.07 7.82v10.37c0 2.12 2.31 3.46 4.15 2.39l4.5-2.59 4.5-2.6c1.84-1.06 1.84-3.71 0-4.77l-4.5-2.6-4.5-2.59C6.38 4.37 4.07 5.69 4.07 7.82Z" /><path {...S} d="M21.93 19.7V6.3" /></>),
+  share: ctl(<path fill="#fff" fillOpacity=".9" d="M19.094 16.86c-.724 0-1.392.253-1.915.677l-5.26-3.806a3.85 3.85 0 0 0 0-1.462l5.26-3.806a3.047 3.047 0 1 0-1.013-1.524l-4.997 3.618a4.063 4.063 0 1 0 0 4.885l4.997 3.618a3.047 3.047 0 1 0 2.928-2.2Zm0-12.087a1.32 1.32 0 1 1 0 2.64 1.32 1.32 0 0 1 0-2.64ZM7.922 15.234a2.234 2.234 0 1 1 0-4.468 2.234 2.234 0 0 1 0 4.468Zm11.172 5.993a1.32 1.32 0 1 1 0-2.64 1.32 1.32 0 0 1 0 2.64Z" />),
+  sound: ctl(<>{SPEAKER}<path {...S} d="M19.5 8.67a7.2 7.2 0 0 1 0 8.66M21.48 5.96a11.9 11.9 0 0 1 0 14.08" /></>),
+  muted: ctl(<>{SPEAKER}<path {...S} d="m19 10 5 5M24 10l-5 5" /></>),
+  full: ctl(<><path {...S} d="M9.75 23.83h6.5c5.42 0 7.58-2.16 7.58-7.58v-6.5c0-5.42-2.16-7.58-7.58-7.58h-6.5c-5.42 0-7.58 2.16-7.58 7.58v6.5c0 5.42 2.16 7.58 7.58 7.58Z" /><path {...S} d="M13.65 20.04h4.12c1.62 0 2.27-.65 2.27-2.27v-1.95c0-1.63-.65-2.28-2.27-2.28h-4.12c-1.62 0-2.27.65-2.27 2.28v1.95c0 1.62.65 2.27 2.27 2.27Z" /></>),
+};
+const BIG_PLAY = (
+  <svg width="91" height="91" viewBox="0 0 92 92" fill="none" aria-hidden="true">
+    <rect x="1.06" y="1.06" width="89.88" height="89.88" rx="44.63" stroke="#fff" strokeOpacity=".5" strokeWidth="2.13" />
+    <path fill="#fff" d="M46 5.75C23.77 5.75 5.75 23.77 5.75 46S23.77 86.25 46 86.25 86.25 68.23 86.25 46 68.23 5.75 46 5.75Zm12.95 40.87L39.32 60.9a.75.75 0 0 1-1.14-.59V31.78a.75.75 0 0 1 1.14-.58l19.62 14.26a.71.71 0 0 1 0 1.16Z" />
+  </svg>
+);
 
-// Pressing play swaps the drawn poster for the real product video. The page
-// ships no bundle; this is the only script.
-const PLAY_SCRIPT = `document.querySelector('.ll-video')?.addEventListener('click',function(e){var b=e.currentTarget;if(b.dataset.on)return;b.dataset.on='1';var v=document.createElement('video');v.src='/demo-video/nanosyllabus-demo.mp4';v.controls=true;v.autoplay=true;v.playsInline=true;v.setAttribute('aria-label','NanoSyllabus product video');b.replaceChildren(v);v.play().catch(function(){});});`;
+// The page ships no bundle; this inline script drives the player.
+// - Plays (muted, as browsers require) while at least half of it is on
+//   screen, pauses when scrolled away, and resumes when it comes back.
+// - A pause the viewer chose sticks until they press play again.
+// - prefers-reduced-motion: no autoplay.
+const PLAYER_SCRIPT = `(function(){var r=document.querySelector('[data-player]');if(!r)return;var v=r.querySelector('video'),bar=r.querySelector('.ll-video-bar'),time=r.querySelector('.ll-video-time'),snd=r.querySelector('[data-a=mute]'),hint=r.querySelector('.ll-video-sound');v.muted=true;v.defaultMuted=true;var held=false,seen=false,idle;var calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function f(t){t=Math.max(0,Math.floor(t||0));return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')}
+function tick(){var d=v.duration||0,p=d?v.currentTime/d:0;bar.value=Math.round(p*1000);bar.style.setProperty('--p',(p*100)+'%');time.textContent=f(v.currentTime)+' / '+f(d)}
+function state(){r.classList.toggle('is-playing',!v.paused);r.classList.toggle('is-muted',v.muted);snd.setAttribute('aria-label',v.muted?'Turn sound on':'Mute');hint.hidden=!(v.muted&&!v.paused)}
+function play(){var p=v.play();if(p)p.catch(function(){})}
+function toggle(){if(v.paused){held=false;play()}else{held=true;v.pause()}}
+function wake(){r.classList.remove('is-idle');clearTimeout(idle);if(!v.paused)idle=setTimeout(function(){r.classList.add('is-idle')},2500)}
+['play','pause','volumechange','ended'].forEach(function(e){v.addEventListener(e,function(){state();wake()})});
+v.addEventListener('timeupdate',tick);v.addEventListener('loadedmetadata',tick);
+v.addEventListener('click',toggle);r.querySelector('.ll-video-big').addEventListener('click',toggle);
+r.addEventListener('pointermove',wake);r.addEventListener('focusin',wake);
+bar.addEventListener('input',function(){if(v.duration){v.currentTime=bar.value/1000*v.duration;tick()}});
+function unmute(){v.muted=false;held=false;play()}
+hint.addEventListener('click',unmute);
+r.querySelector('.ll-video-ctl').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;var a=b.dataset.a;
+if(a==='back')v.currentTime=Math.max(0,v.currentTime-10);
+else if(a==='fwd')v.currentTime=Math.min(v.duration||0,v.currentTime+10);
+else if(a==='mute'){if(v.muted)unmute();else v.muted=true}
+else if(a==='share'){var u=location.origin+'/';if(navigator.share)navigator.share({title:document.title,url:u}).catch(function(){});else if(navigator.clipboard)navigator.clipboard.writeText(u).then(function(){b.setAttribute('aria-label','Link copied');b.classList.add('is-done');setTimeout(function(){b.classList.remove('is-done');b.setAttribute('aria-label','Share')},1600)})}
+else if(a==='full'){var el=r;if(document.fullscreenElement)document.exitFullscreen();else if(el.requestFullscreen)el.requestFullscreen().catch(function(){});else if(v.webkitEnterFullscreen)v.webkitEnterFullscreen()}});
+r.addEventListener('keydown',function(e){if(e.target===bar)return;if(e.key===' '||e.key==='k'){e.preventDefault();toggle()}else if(e.key==='ArrowRight')v.currentTime+=5;else if(e.key==='ArrowLeft')v.currentTime-=5;else if(e.key==='m')v.muted=!v.muted});
+if('IntersectionObserver' in window)new IntersectionObserver(function(es){es.forEach(function(e){var on=e.intersectionRatio>=0.5;if(on){if(!seen){seen=true;v.preload='auto'}if(!held&&!calm&&v.paused)play()}else if(!v.paused){v.pause()}})},{threshold:[0,0.5]}).observe(r);
+state();tick()})();`;
 
 export function LiveLanding() {
   return (
@@ -138,18 +170,38 @@ export function LiveLanding() {
         </section>
 
         <div className="ll-wrap">
-          <button type="button" className="ll-video" aria-label="Play the NanoSyllabus video">
-            <img className="ll-video-poster" src="/landing/video-poster.webp" alt="" loading="lazy" />
-            <svg className="ll-video-play" width="91" height="91" viewBox="0 0 92 92" fill="none" aria-hidden="true">
-              <rect x="1.06" y="1.06" width="89.88" height="89.88" rx="44.63" stroke="#fff" strokeOpacity=".5" strokeWidth="2.13" />
-              <path fill="#fff" d="M46 5.75C23.77 5.75 5.75 23.77 5.75 46S23.77 86.25 46 86.25 86.25 68.23 86.25 46 68.23 5.75 46 5.75Zm12.95 40.87L39.32 60.9a.75.75 0 0 1-1.14-.59V31.78a.75.75 0 0 1 1.14-.58l19.62 14.26a.71.71 0 0 1 0 1.16Z" />
-            </svg>
-            <span className="ll-video-bar" aria-hidden="true"><i /><b /></span>
-            <span className="ll-video-time" aria-hidden="true">05:15 / 08:30</span>
-            <span className="ll-video-ctl" aria-hidden="true">
-              {controls.map((c, i) => (c === 'sep' ? <i key={i} /> : <span key={i}>{c}</span>))}
-            </span>
-          </button>
+          <div className="ll-video is-muted" data-player tabIndex={-1}>
+            <video
+              src="/demo-video/nanosyllabus-demo.mp4"
+              poster="/landing/demo-poster.webp"
+              muted
+              playsInline
+              preload="none"
+              aria-label="NanoSyllabus product video"
+            />
+            <button type="button" className="ll-video-big" aria-label="Play video">{BIG_PLAY}</button>
+            <button type="button" className="ll-video-sound" hidden>
+              {I.muted}
+              <span>Tap for sound</span>
+            </button>
+            <div className="ll-video-ui">
+              <input className="ll-video-bar" type="range" min="0" max="1000" step="1" defaultValue="0" aria-label="Seek" />
+              <div className="ll-video-row">
+                <span className="ll-video-time">00:00 / 00:53</span>
+                <span className="ll-video-ctl">
+                  <button type="button" data-a="back" aria-label="Back 10 seconds" className="ll-hide-sm">{I.back}</button>
+                  <button type="button" data-a="fwd" aria-label="Forward 10 seconds" className="ll-hide-sm">{I.fwd}</button>
+                  <i className="ll-hide-sm" />
+                  <button type="button" data-a="share" aria-label="Share" className="ll-hide-sm">{I.share}</button>
+                  <button type="button" data-a="mute" aria-label="Turn sound on">
+                    <span className="ll-ico-on">{I.sound}</span>
+                    <span className="ll-ico-off">{I.muted}</span>
+                  </button>
+                  <button type="button" data-a="full" aria-label="Full screen">{I.full}</button>
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <section className="ll-band ll-problem">
@@ -298,7 +350,7 @@ export function LiveLanding() {
           </a>
         </div>
       </footer>
-      <script dangerouslySetInnerHTML={{ __html: PLAY_SCRIPT }} />
+      <script dangerouslySetInnerHTML={{ __html: PLAYER_SCRIPT }} />
     </div>
   );
 }

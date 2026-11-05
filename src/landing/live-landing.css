@@ -53,20 +53,37 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 .ll-hero-copy .ll-btn { margin-top: 41px; }
 
 /* ── video ── */
-.ll-video { position: relative; display: block; width: 100%; aspect-ratio: 1275 / 694; padding: 0; border: 0; border-radius: 17px; overflow: hidden; background: #dbcdcd; cursor: pointer; container-type: inline-size; }
-.ll-video-poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; }
-.ll-video video { position: absolute; inset: 0; width: 100%; height: 100%; background: #000; }
-.ll-video[data-on] { cursor: default; }
-.ll-video-play { position: absolute; left: 50%; top: 50%; width: 7.14cqw; height: auto; min-width: 56px; transform: translate(-50%, -50%); transition: transform .15s; }
-.ll-video:hover .ll-video-play { transform: translate(-50%, -50%) scale(1.06); }
-.ll-video-bar { position: absolute; left: 8.39%; right: 8.31%; top: 89.05%; height: 4px; }
-.ll-video-bar i { position: absolute; inset: 0; background: rgb(255 255 255 / .35); border-radius: 2px; }
-.ll-video-bar i::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 54.6%; background: #fff; border-radius: 2px; }
-.ll-video-bar b { position: absolute; left: 54.6%; top: 50%; width: 19px; height: 19px; transform: translate(-50%, -50%); border-radius: 50%; background: rgb(255 255 255 / .55); }
-.ll-video-bar b::after { content: ""; position: absolute; inset: 4.5px; border-radius: 50%; background: #fff; }
-.ll-video-time { position: absolute; left: 8.39%; top: 92.4%; font: 500 clamp(12px, 1.667cqw, 21.25px)/1.5 Poppins, sans-serif; color: #fff; }
-.ll-video-ctl { position: absolute; right: 8.31%; top: 93.08%; display: flex; align-items: center; gap: clamp(14px, 3.4cqw, 43px); }
+.ll-video { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 17px; overflow: hidden; background: #0b0f1e; container-type: inline-size; outline: none; }
+.ll-video video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #0b0f1e; cursor: pointer; }
+.ll-video button { padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
+.ll-video-big { position: absolute; left: 50%; top: 50%; width: 7.14cqw; min-width: 56px; line-height: 0; transform: translate(-50%, -50%); transition: transform .15s, opacity .2s; border-radius: 50%; filter: drop-shadow(0 6px 18px rgb(0 0 0 / .25)); }
+.ll-video-big svg { width: 100%; height: auto; }
+.ll-video-big:hover { transform: translate(-50%, -50%) scale(1.06); }
+.ll-video.is-playing .ll-video-big { opacity: 0; pointer-events: none; }
+.ll-video-sound { position: absolute; top: 3.2cqw; right: 3.2cqw; display: flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px 0 10px !important; border-radius: 999px; background: rgb(12 14 24 / .55) !important; color: #fff; font: 500 14px/1 Poppins, sans-serif !important; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.ll-video-sound[hidden] { display: none; }
+.ll-video-sound svg { width: 20px; height: 20px; }
+.ll-video-ui { position: absolute; left: 0; right: 0; bottom: 0; padding: 7cqw 8.35% 2.6cqw; background: linear-gradient(180deg, rgb(0 0 0 / 0) 0%, rgb(0 0 0 / .5) 100%); transition: opacity .3s; }
+.ll-video.is-idle .ll-video-ui { opacity: 0; }
+.ll-video.is-idle, .ll-video.is-idle video { cursor: none; }
+.ll-video-bar { --p: 0%; display: block; width: 100%; height: 19px; margin: 0; background: transparent; -webkit-appearance: none; appearance: none; cursor: pointer; }
+.ll-video-bar::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, #fff var(--p), rgb(255 255 255 / .35) var(--p)); }
+.ll-video-bar::-moz-range-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, #fff var(--p), rgb(255 255 255 / .35) var(--p)); }
+.ll-video-bar::-webkit-slider-thumb { -webkit-appearance: none; width: 19px; height: 19px; margin-top: -7.5px; border: 4.5px solid rgb(255 255 255 / .55); border-radius: 50%; background: #fff; background-clip: padding-box; }
+.ll-video-bar::-moz-range-thumb { width: 10px; height: 10px; border: 4.5px solid rgb(255 255 255 / .55); border-radius: 50%; background: #fff; background-clip: padding-box; }
+.ll-video-bar:focus-visible { outline: 2px solid #fff; outline-offset: 4px; border-radius: 4px; }
+.ll-video-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 1cqw; }
+.ll-video-time { font: 500 clamp(12px, 1.667cqw, 21.25px)/1.5 Poppins, sans-serif; color: #fff; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ll-video-ctl { display: flex; align-items: center; gap: clamp(14px, 3.4cqw, 43px); }
 .ll-video-ctl i { width: 1px; height: 25px; background: rgb(255 255 255 / .7); }
+.ll-video-ctl button { display: flex; line-height: 0; border-radius: 6px; opacity: .9; transition: opacity .15s, transform .15s; }
+.ll-video-ctl button:hover { opacity: 1; transform: scale(1.1); }
+.ll-video-ctl button.is-done { opacity: .5; }
+.ll-video button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.ll-video .ll-ico-off, .ll-video.is-muted .ll-ico-on { display: none; }
+.ll-video.is-muted .ll-ico-off { display: contents; }
+.ll-video:fullscreen { border-radius: 0; }
+.ll-video:fullscreen video { object-fit: contain; }
 
 /* ── shared section bits ── */
 .ll-band { background: linear-gradient(180deg, #f1f1f1 0%, #f8f9f4 85%); }
@@ -200,7 +217,11 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
   .ll-hero-copy p { font-size: 16px; line-height: 28px; }
   .ll-hero-copy .ll-btn { margin-top: 28px; }
   .ll-video { border-radius: 12px; }
-  .ll-video-time, .ll-video-ctl, .ll-video-bar { display: none; }
+  .ll-video-ui { padding: 40px 14px 8px; }
+  .ll-video .ll-hide-sm { display: none; }
+  .ll-video-ctl { gap: 18px; }
+  .ll-video-ctl svg { width: 22px; height: 22px; }
+  .ll-video-sound { top: 10px; right: 10px; height: 32px; font-size: 12px !important; }
   .ll-problem { margin-top: 56px; }
   .ll-h2, .ll-faq h2, .ll-cta h2 { font-size: 28px; line-height: 40px; letter-spacing: -.6px; }
   .ll-split-copy h3 { font-size: 26px; line-height: 36px; letter-spacing: -1px; }
