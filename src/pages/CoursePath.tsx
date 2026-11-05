@@ -14,6 +14,17 @@ import { subjectIcon } from './Topics';
 
 const unitTitle = (t: string) => t.replace(/^Unit \d+\s*·\s*/, '');
 
+/** "Ohm's law, air gaps, B-H curve." → ["Ohm's law", "Air gaps", "B-H curve"] */
+function descTopics(d: string): string[] {
+  return d
+    .replace(/\.\s*$/, '')
+    .replace(/\s+and the model answers.*$/i, '')
+    .split(/,\s*/)
+    .map((t) => t.trim())
+    .filter((t) => t.length > 1 && t.length < 80)
+    .map((t) => t[0].toUpperCase() + t.slice(1));
+}
+
 export default function CoursePath() {
   const { slug = '' } = useParams();
   return <PlainCoursePath key={slug} />;
@@ -78,6 +89,9 @@ function PlainCoursePath() {
           }
           const known = new Set((s.topics ?? []).map((t) => t.id));
           lessons.filter((l) => !l.topic || !known.has(l.topic)).forEach((l) => stops.push({ lesson: l }));
+          // No topics or lessons yet: the unit's description lists its syllabus
+          // topics, so show those as greyed stops on the path.
+          if (!stops.length) descTopics(s.description).forEach((t, k) => stops.push({ soon: t, key: `d-${k}` }));
           const prev = ui ? c.subjects[ui - 1] : null;
           return (
             <div key={s.slug} className={!prev ? '' : (lessonsOf.get(prev.slug) ?? []).length || prev.topics?.length ? 'mt-[72px]' : 'mt-8'}>
