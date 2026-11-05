@@ -23,6 +23,6 @@ export default function AppCourse() {
   useEffect(() => { if (allowed) window.location.replace(url); }, [allowed, url]);
   if (!url || error) return <Navigate to={`/courses/${slug}`} replace />;
   if (!c) return <div className="h-full w-full animate-pulse bg-bg-secondary" />;
-  if (!c.owned && user?.role !== 'admin') return <Navigate to={`/courses/${slug}`} replace />;
+  if (!c.owned && user?.role !== 'admin') return <Navigate to={`/app/premium/${slug}`} replace />;
   return <div className="h-full w-full animate-pulse bg-bg-secondary" />;
 }

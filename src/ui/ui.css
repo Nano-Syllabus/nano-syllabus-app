@@ -31,6 +31,11 @@
 @font-face { font-family: poppins; src: url("./fonts/poppins-latin-700-normal.woff2") format("woff2"); font-weight: 700; font-display: swap; }
 @font-face { font-family: dmMono; src: url("./fonts/dm-mono-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; }
 @font-face { font-family: dmMono; src: url("./fonts/dm-mono-latin-500-normal.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+/* Figma redesign faces (5D1OeHdCb2HU4uefNHKs73). */
+@font-face { font-family: "Clash Display"; src: url("./fonts/clash-display-500.woff2") format("woff2"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "Clash Display"; src: url("./fonts/clash-display-600.woff2") format("woff2"); font-weight: 600; font-display: swap; }
+@font-face { font-family: "DM Serif Display"; src: url("./fonts/dm-serif-display-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: manrope; src: url("../landing/fonts/manrope-latin-200-800-normal.woff2") format("woff2"); font-weight: 200 800; font-display: swap; }
 
 @theme inline {
   --radius-sm: 4px;
@@ -42,6 +47,9 @@
   --font-display: outfit, ui-sans-serif, system-ui, sans-serif;
   --font-sans: inter, ui-sans-serif, system-ui, sans-serif;
   --font-mono: dmMono, ui-monospace, "SF Mono", monospace;
+  --font-clash: "Clash Display", inter, ui-sans-serif, sans-serif;
+  --font-serif: "DM Serif Display", Georgia, serif;
+  --font-manrope: manrope, inter, ui-sans-serif, sans-serif;
 
   --color-background: var(--bg-primary);
   --color-foreground: var(--text-primary);

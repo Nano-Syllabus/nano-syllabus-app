@@ -1,17 +1,22 @@
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 import { SITE } from '../lib/seo';
-import { AppShell } from '../ui/AppShell';
+import { TopNavShell } from '../ui/TopNav';
 
-// Signed in: nano_sylabus's app shell (sidebar) around every page.
-// Signed out: the public header and footer.
+// Signed in: the Figma top bar (Home · Topics · You) around every page,
+// except the full-screen ones (lesson player, premium, payment), which draw
+// their own header. Signed out: the public header and footer.
+const FULL_SCREEN = /^\/app\/(watch|premium|checkout)\//;
+
 export function Layout() {
   const { user } = useAuth();
+  const { pathname } = useLocation();
   if (user && user.onboarded !== false) {
+    if (FULL_SCREEN.test(pathname)) return <Outlet />;
     return (
-      <AppShell>
+      <TopNavShell>
         <Outlet />
-      </AppShell>
+      </TopNavShell>
     );
   }
   return <PublicLayout />;

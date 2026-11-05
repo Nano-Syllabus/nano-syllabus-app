@@ -152,3 +152,21 @@ export function useQuery<T>(key: string | null, path: string) {
 
   return { data, error, loading: !!key && data === undefined && !error };
 }
+
+/** Several keys at once (a list page that needs every item's detail). Same
+ *  rules as useQuery: paint from cache, fetch each key once per page load. */
+export function useQueries<T>(pairs: [key: string, path: string][]) {
+  useSyncExternalStore(
+    (l) => {
+      listeners.add(l);
+      return () => listeners.delete(l);
+    },
+    () => version,
+  );
+  const sig = pairs.map((p) => p[0]).join('|');
+  useEffect(() => {
+    for (const [key, path] of pairs) if (!fresh.has(key)) load(key, path).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sig]);
+  return pairs.map(([key]) => cache.get(key) as T | undefined);
+}

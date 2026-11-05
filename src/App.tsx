@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { NotFound, RequireAuth } from './components/bits';
 import Landing from './pages/Landing';
@@ -9,7 +9,6 @@ import Landing from './pages/Landing';
 const Courses = lazy(() => import('./pages/Courses'));
 const CourseDetail = lazy(() => import('./pages/CourseDetail'));
 const AuthPage = lazy(() => import('./pages/AuthPage'));
-const AppHome = lazy(() => import('./pages/AppHome'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const PaymentResult = lazy(() => import('./pages/PaymentResult'));
 const Subject = lazy(() => import('./pages/Subject'));
@@ -19,8 +18,10 @@ const Teach = lazy(() => import('./pages/Teach'));
 const TeachPreview = lazy(() => import('./pages/TeachPreview'));
 const Admin = lazy(() => import('./pages/Admin'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
-const MyCourses = lazy(() => import('./pages/MyCourses'));
 const AppCourse = lazy(() => import('./pages/AppCourse'));
+const Topics = lazy(() => import('./pages/Topics'));
+const ComingSoon = lazy(() => import('./pages/ComingSoon'));
+const Premium = lazy(() => import('./pages/Premium'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -56,12 +57,15 @@ export function App() {
           <Route path="signup" element={<AuthPage key="signup" mode="signup" />} />
           <Route path="forgot" element={<AuthPage key="forgot" mode="forgot" />} />
           <Route path="onboarding" element={<Onboarding />} />
+          <Route path="courses/:slug" element={<CourseDetail />} />
           <Route element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="courses" element={<Courses />} />
-            <Route path="courses/:slug" element={<CourseDetail />} />
-            <Route path="app" element={authed(<AppHome />)} />
-            <Route path="app/courses" element={authed(<MyCourses />)} />
+            <Route path="app" element={authed(<ComingSoon key="home" title="Home" />)} />
+            <Route path="app/you" element={authed(<ComingSoon key="you" title="You" />)} />
+            <Route path="app/topics" element={authed(<Topics />)} />
+            <Route path="app/premium/:slug" element={authed(<Premium />)} />
+            <Route path="app/courses" element={<Navigate to="/app/topics" replace />} />
             <Route path="app/courses/:slug/learn" element={authed(<AppCourse />)} />
             <Route path="app/checkout/:slug" element={authed(<Checkout />)} />
             <Route path="app/payment/result" element={authed(<PaymentResult />)} />

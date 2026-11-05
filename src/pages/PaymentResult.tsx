@@ -40,7 +40,7 @@ export default function PaymentResult() {
         )}
         {status !== 'paid' && slug && <Link className="btn btn-primary" to={`/app/checkout/${slug}`}>Try again</Link>}
         {status === 'pending' && <button className="btn" onClick={() => location.reload()}>Refresh</button>}
-        <Link className="btn" to="/app">My learning</Link>
+        <Link className="btn" to="/app/topics">My topics</Link>
       </div>
     </main>
   );
