@@ -148,8 +148,8 @@ function SemesterRow({ sem, courses, starred, onStar }: { sem: Semester; courses
     const c = x.course ? courses.get(x.course) : undefined;
     const lessons = c ? c.subjects.reduce((n, s) => n + s.lessonCount, 0) : 0;
     const done = c ? c.subjects.reduce((n, s) => n + s.done, 0) : 0;
-    const live = Boolean(c && lessons > 0);
-    const state: TileState = !c || !live ? 'soon' : hasAccess(c, admin) ? 'open' : 'locked';
+    // A course in the catalogue always opens (its path says which units are coming soon).
+    const state: TileState = !c ? 'soon' : hasAccess(c, admin) ? 'open' : 'locked';
     const to = !c ? '' : state === 'locked' ? `/app/premium/${c.slug}` : courseHref(c);
     const pct = lessons ? Math.round((100 * done) / lessons) : 0;
     return { x, i, state, to, pct, started: state === 'open' && done > 0, c };
