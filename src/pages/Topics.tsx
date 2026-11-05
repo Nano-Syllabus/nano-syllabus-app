@@ -135,12 +135,8 @@ function UnlockPill({ slug }: { slug: string }) {
 
 const hasAccess = (c: CourseDetail, admin: boolean) => c.owned || admin || c.pricePaisa === 0;
 
-/** Where a whole course opens: its own app, or its first subject with lessons. */
-function courseHref(c: CourseDetail) {
-  if (config.appCourses[c.slug]) return `/app/courses/${c.slug}/learn`;
-  const first = c.subjects.find((s) => s.lessonCount > 0);
-  return first ? `/app/courses/${c.slug}/${first.slug}` : `/courses/${c.slug}`;
-}
+/** A whole course opens as its unit path (CoursePath). */
+const courseHref = (c: CourseDetail) => `/app/courses/${c.slug}`;
 
 function SemesterRow({ sem, courses, starred, onStar }: { sem: Semester; courses: Map<string, CourseDetail>; starred: boolean; onStar: () => void }) {
   const { user } = useAuth();

@@ -4,7 +4,6 @@
 // comes from the course itself. The page draws its own header.
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { config } from '../lib/config';
 import { ErrorBox, NotFound } from '../components/bits';
 import { api, invalidate, setCached, useQuery } from '../lib/api';
 import { useAuth } from '../lib/auth';
@@ -56,10 +55,8 @@ export default function CourseDetail() {
   if (error) return <main className="wrap page"><ErrorBox message={error.message} retry={() => location.reload()} /></main>;
   if (!c) return <div className="min-h-[100dvh] bg-[#fefefe]"><div className="h-[83px] bg-[#f1f1f1]" /><div className="h-[560px] animate-pulse bg-[#166cdb]" /></div>;
 
-  const firstSubject = c.subjects.find((s) => s.lessonCount > 0);
-  const appCourse = Boolean(config.appCourses[c.slug]);
   const canOpen = c.owned || user?.role === 'admin';
-  const startPath = appCourse ? `/app/courses/${c.slug}/learn` : firstSubject ? `/app/courses/${c.slug}/${firstSubject.slug}` : '/app/topics';
+  const startPath = `/app/courses/${c.slug}`;
   const paid = c.pricePaisa > 0;
 
   async function start() {

@@ -11,6 +11,7 @@ const AuthPage = lazy(() => import('./pages/AuthPage'));
 const Checkout = lazy(() => import('./pages/Checkout'));
 const PaymentResult = lazy(() => import('./pages/PaymentResult'));
 const Subject = lazy(() => import('./pages/Subject'));
+const CoursePath = lazy(() => import('./pages/CoursePath'));
 const Watch = lazy(() => import('./pages/Watch'));
 const TeachGuide = lazy(() => import('./pages/TeachGuide'));
 const Teach = lazy(() => import('./pages/Teach'));
@@ -68,6 +69,7 @@ export function App() {
             <Route path="app/topics/:program" element={authed(<Topics />)} />
             <Route path="app/premium/:slug" element={authed(<Premium />)} />
             <Route path="app/courses" element={<Navigate to="/app/topics" replace />} />
+            <Route path="app/courses/:slug" element={authed(<CoursePath />)} />
             <Route path="app/courses/:slug/learn" element={authed(<AppCourse />)} />
             <Route path="app/checkout/:slug" element={authed(<Checkout />)} />
             <Route path="app/payment/result" element={authed(<PaymentResult />)} />
