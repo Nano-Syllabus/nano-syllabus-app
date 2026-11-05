@@ -26,28 +26,25 @@ function PublicLayout() {
   const { user, logout } = useAuth();
   return (
     <>
-      <header className="header">
-        <div className="wrap">
-          <Link to={user ? '/app' : '/'} className="brand" aria-label={`${SITE} home`}>
-            <img src="/icon.svg" alt="" width={28} height={28} />
-            <span className="brand-name">{SITE}</span>
+      <header className="sticky top-0 z-30 h-[60px] border-b border-[#e2ede5] bg-white/95 backdrop-blur dark:border-[#1b2c20] dark:bg-[#141414]/95">
+        <div className="mx-auto flex h-full w-[min(1384px,100%-32px)] items-center gap-6">
+          <Link to="/" aria-label={`${SITE} home`} className="shrink-0">
+            <img src="/app/ns-logo.webp" width={52} height={47} alt="" className="h-[47px] w-[52px] object-contain dark:brightness-0 dark:invert" />
           </Link>
-          <nav className="nav">
-            <NavLink to="/courses">Courses</NavLink>
-            {user && <NavLink to="/app" end>My learning</NavLink>}
-            {user?.role === 'teacher' || user?.role === 'admin' ? <NavLink to="/app/teach">Teach</NavLink> : <NavLink to="/teach" className="nav-hide-sm">Teach</NavLink>}
-            {user?.role === 'admin' && <NavLink to="/app/admin">Admin</NavLink>}
+          <nav className="flex items-center gap-5 text-[15px] font-medium text-[#5d6862] dark:text-[#a3ada8]">
+            <NavLink to="/courses" className={({ isActive }) => (isActive ? 'text-[#18251e] dark:text-white' : 'hover:text-[#18251e] dark:hover:text-white')}>Courses</NavLink>
+            <NavLink to="/teach" className={({ isActive }) => 'max-sm:hidden ' + (isActive ? 'text-[#18251e] dark:text-white' : 'hover:text-[#18251e] dark:hover:text-white')}>Teach</NavLink>
           </nav>
-          <span className="spacer" />
+          <span className="flex-1" />
           {user ? (
-            <div className="row">
-              <span className="muted small nav-hide-sm">{user.name}</span>
-              <button className="btn btn-ghost" onClick={() => void logout()}>Sign out</button>
+            <div className="flex items-center gap-4 text-sm">
+              <Link to="/app/topics" className="font-medium text-[#18251e] dark:text-white">My learning</Link>
+              <button type="button" className="cursor-pointer text-[#5d6862] dark:text-[#a3ada8]" onClick={() => void logout()}>Sign out</button>
             </div>
           ) : (
-            <div className="row">
-              <Link to="/login" className="btn btn-ghost nav-hide-sm">Sign in</Link>
-              <Link to="/signup" className="btn btn-primary">Get started</Link>
+            <div className="flex items-center gap-4">
+              <Link to="/login" className="text-[15px] font-medium text-[#18251e] dark:text-white">Sign in</Link>
+              <Link to="/signup" className="flex h-10 items-center rounded-[12px] bg-[#142c7d] px-4 text-sm font-semibold text-white transition hover:bg-[#0f2366] max-sm:hidden">Sign up</Link>
             </div>
           )}
         </div>

@@ -29,7 +29,7 @@ export const Bolt = ({ className = '' }: { className?: string }) => (
 type Item = { to: string; label: string; icon: ReactNode; match: (p: string) => boolean };
 const items: Item[] = [
   { to: '/app', label: 'Home', icon: <HouseIcon />, match: (p) => p === '/app' },
-  { to: '/app/topics', label: 'Topics', icon: <LayersIcon />, match: (p) => p.startsWith('/app/topics') || p.startsWith('/app/explore') || p.startsWith('/app/courses') || p.startsWith('/courses') },
+  { to: '/app/topics', label: 'Topics', icon: <LayersIcon />, match: (p) => p.startsWith('/app/topics') || p.startsWith('/app/courses') || p.startsWith('/courses') },
   { to: '/app/you', label: 'You', icon: <UserIcon />, match: (p) => p.startsWith('/app/you') },
 ];
 

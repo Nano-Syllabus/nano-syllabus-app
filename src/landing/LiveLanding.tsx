@@ -8,7 +8,8 @@
 import type React from 'react';
 
 const DEMO_LESSON = '/courses/dc-motor-taster';
-const START = '/signup';
+// Get Started / Enroll / Start now: browse the programs first (public).
+const START = '/courses';
 
 const Arrow = ({ size = 18 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 18 18" fill="none" aria-hidden="true">

@@ -5,11 +5,11 @@
 // a subject with no lessons yet says "Coming soon".
 import { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
-import { useQueries, useQuery } from '../lib/api';
+import { api, useQueries, useQuery } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { config } from '../lib/config';
 import { SITE, useSeo } from '../lib/seo';
-import type { CourseCard, CourseDetail } from '../lib/types';
+import type { CourseCard, CourseDetail, User } from '../lib/types';
 import { Bolt } from '../ui/TopNav';
 import { PROGRAMS, type Semester } from '../data/curriculum';
 
@@ -179,7 +179,7 @@ function SemesterRow({ sem, courses, starred, onStar }: { sem: Semester; courses
 
 export default function Topics() {
   const { program = '' } = useParams();
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const open = (slug?: string) => PROGRAMS.find((x) => x.slug === slug && !x.soon);
   const p = open(program);
   useSeo({ title: `${p?.short ?? 'Topics'} · ${SITE}`, noindex: true });
@@ -191,14 +191,24 @@ export default function Topics() {
     window.scrollTo(0, 0);
   }, [program]);
   const byslug = useMemo(() => new Map(details.filter((d): d is CourseDetail => Boolean(d)).map((d) => [d.slug, d])), [details]);
-  // /app/topics: the program picked at onboarding, or Explore to pick one.
-  if (!p) return <Navigate to={!program && open(user?.program) ? `/app/topics/${user?.program}` : '/app/explore'} replace />;
+  // /app/topics: the learner's program, else the first open one. Explore
+  // (/courses) is only before sign-in; nobody is sent there after login.
+  const home = open(user?.program) ?? PROGRAMS.find((x) => !x.soon);
+  // Opening a program makes it theirs, so Topics comes back to it.
+  useEffect(() => {
+    if (!p || !user || user.program === p.slug) return;
+    setUser({ ...user, program: p.slug });
+    api<{ user: User }>('/api/me/program', { method: 'PUT', body: { program: p.slug } })
+      .then((r) => setUser(r.user))
+      .catch(() => {});
+  }, [p, user, setUser]);
+  if (!p) return <Navigate to={home ? `/app/topics/${home.slug}` : '/courses'} replace />;
   const loading = !data || details.some((d) => !d);
   return (
     <div className="mx-auto w-[min(1184px,100%-32px)] pb-20 pt-[64px] max-sm:pt-8">
       <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
         <h1 title={p.name} className="font-clash text-[32px] font-medium leading-10 text-[#18251e] dark:font-sans dark:font-semibold dark:text-[#dae7e0]">{p.short}</h1>
-        <Link to="/app/explore" className="text-sm font-medium text-[#456dff] hover:underline">Change course</Link>
+        <Link to="/courses" className="text-sm font-medium text-[#456dff] hover:underline">Change course</Link>
       </div>
       {loading ? (
         <div aria-busy className="mt-[45px] h-[295px] animate-pulse rounded-[32px] bg-[#f5f6f8] dark:bg-white/5" />

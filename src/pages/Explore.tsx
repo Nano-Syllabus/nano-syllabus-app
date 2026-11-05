@@ -1,8 +1,8 @@
-// /app/explore, "Explore Courses": the onboarding step where a learner picks
-// their program. Every program is a card, with search, the University / Level
+// /courses, "Explore Courses": the public page "Get Started" opens, before
+// sign-in, where a visitor picks their program. Every program is a card, with search, the University / Level
 // filters and a sort. Picking an open program (BEI) saves it on the account
-// (PUT /api/me/program) and opens its semesters; from then on /app/topics
-// goes straight there. The rest say "Coming soon". Catalogue courses no
+// (PUT /api/me/program) and opens its semesters, via sign-up when signed
+// out. After login nobody lands here: /app/topics opens their program. The rest say "Coming soon". Catalogue courses no
 // program lists (the free taster) sit under "Free to try".
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -112,7 +112,7 @@ function Card({ title, subtitle, place, chips, icon, to, soon, onPick }: { title
 const placeOf = (p: Program) => (p.university === 'IOE' ? 'IOE, Tribhuvan University' : p.university);
 
 export default function Explore() {
-  useSeo({ title: `Explore courses · ${SITE}`, noindex: true });
+  useSeo({ title: `Explore courses · ${SITE}`, description: 'Pick your program and study it semester by semester with short interactive video lessons.', path: '/courses' });
   const { user, setUser } = useAuth();
   // Save the pick on the account; the card's link has already moved on.
   const pick = (slug: string) => {
@@ -170,7 +170,6 @@ export default function Explore() {
     <div className="relative isolate">
       <div aria-hidden className="pointer-events-none absolute -left-40 top-40 -z-10 hidden h-[520px] w-[520px] rounded-full bg-[#1d3a8a]/25 blur-[120px] dark:block" />
       <div className="mx-auto w-[min(1384px,100%-32px)] pb-24 pt-[72px] max-sm:pt-8">
-        {!user?.program ? <p className="mb-3 text-sm font-medium text-[#3b82f6]">Step 1 · Choose your course</p> : null}
         <h1 className="text-[48px] font-semibold leading-[1.1] tracking-[-0.02em] max-sm:text-[34px]">
           <span className="text-[#0f1713] dark:text-white">Explore</span> <span className="text-[#9a9fa3] dark:text-[#a3a3a3]">Courses</span>
         </h1>
@@ -271,9 +270,9 @@ export default function Explore() {
                     place={placeOf(p)}
                     chips={[p.level, `${p.years} Years`]}
                     icon={p.icon === 'chip' ? <ChipIcon /> : <CodeIcon />}
-                    to={p.soon ? undefined : `/app/topics/${p.slug}`}
+                    to={p.soon ? undefined : user ? `/app/topics/${p.slug}` : `/signup?next=${encodeURIComponent(`/app/topics/${p.slug}`)}`}
                     soon={p.soon}
-                    onPick={p.soon ? undefined : () => pick(p.slug)}
+                    onPick={p.soon || !user ? undefined : () => pick(p.slug)}
                   />
                 ))}
               </div>

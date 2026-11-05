@@ -6,7 +6,6 @@ import Landing from './pages/Landing';
 
 // The landing page ships in the main bundle (first paint for most visitors);
 // every other page is its own chunk, fetched on first visit.
-const Courses = lazy(() => import('./pages/Courses'));
 const CourseDetail = lazy(() => import('./pages/CourseDetail'));
 const AuthPage = lazy(() => import('./pages/AuthPage'));
 const Checkout = lazy(() => import('./pages/Checkout'));
@@ -61,10 +60,10 @@ export function App() {
           <Route path="courses/:slug" element={<CourseDetail />} />
           <Route element={<Layout />}>
             <Route index element={<Home />} />
-            <Route path="courses" element={<Courses />} />
+            <Route path="courses" element={<Explore />} />
             <Route path="app" element={authed(<ComingSoon key="home" title="Home" />)} />
             <Route path="app/you" element={authed(<ComingSoon key="you" title="You" />)} />
-            <Route path="app/explore" element={authed(<Explore />)} />
+            <Route path="app/explore" element={<Navigate to="/courses" replace />} />
             <Route path="app/topics" element={authed(<Topics />)} />
             <Route path="app/topics/:program" element={authed(<Topics />)} />
             <Route path="app/premium/:slug" element={authed(<Premium />)} />
