@@ -202,10 +202,7 @@ export default function Topics() {
   const loading = !data || details.some((d) => !d);
   return (
     <div className="mx-auto w-[min(1184px,100%-32px)] pb-20 pt-[64px] max-sm:pt-8">
-      <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-        <h1 title={p.name} className="font-clash text-[32px] font-medium leading-10 text-[#18251e] dark:font-sans dark:font-semibold dark:text-[#dae7e0]">{p.short}</h1>
-        <Link to="/courses" className="text-sm font-medium text-[#456dff] hover:underline">Change course</Link>
-      </div>
+      <h1 title={p.name} className="font-clash text-[32px] font-medium leading-10 text-[#18251e] dark:font-sans dark:font-semibold dark:text-[#dae7e0]">{p.short}</h1>
       {loading ? (
         <div aria-busy className="mt-[45px] h-[295px] animate-pulse rounded-[32px] bg-[#f5f6f8] dark:bg-white/5" />
       ) : (

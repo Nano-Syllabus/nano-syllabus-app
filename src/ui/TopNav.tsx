@@ -7,6 +7,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import type { Home } from '../lib/types';
+import { PROGRAMS } from '../data/curriculum';
 import { getTheme, onTheme, setTheme, type Theme } from './theme';
 
 const ico = { width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.9, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true } as const;
@@ -91,6 +92,17 @@ function Menu() {
             {user?.role === 'teacher' || user?.role === 'admin' ? <button role="menuitem" className={row} onClick={() => go('/app/teach')}>Teach</button> : null}
             {user?.role === 'admin' ? <button role="menuitem" className={row} onClick={() => go('/app/admin')}>Admin</button> : null}
             <button role="menuitem" className={row} aria-expanded={settings} onClick={() => setSettings((s) => !s)}>Settings</button>
+            {settings ? (
+              <div className="flex items-center justify-between px-[18px] py-3 text-sm text-white/80">
+                <span>
+                  Course
+                  <span className="ml-2 font-semibold text-white">{PROGRAMS.find((p) => p.slug === user?.program)?.short ?? PROGRAMS.find((p) => !p.soon)?.short}</span>
+                </span>
+                <button type="button" onClick={() => go('/courses')} className="cursor-pointer rounded-md bg-white/10 px-3 py-1 text-xs text-white hover:bg-white/20">
+                  Change
+                </button>
+              </div>
+            ) : null}
             {settings ? (
               <div className="flex items-center justify-between px-[18px] py-3 text-sm text-white/80">
                 Theme
