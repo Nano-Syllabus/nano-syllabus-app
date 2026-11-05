@@ -8,6 +8,8 @@ export type User = {
   /** false until the onboarding step is done (name + answer language). */
   onboarded?: boolean;
   languagePref?: 'EN' | 'RN';
+  /** The program picked on Explore Courses ("bei"), or "" before that. */
+  program?: string;
 };
 
 export type CourseCard = {

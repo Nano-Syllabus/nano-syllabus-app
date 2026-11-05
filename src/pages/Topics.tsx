@@ -179,19 +179,27 @@ function SemesterRow({ sem, courses, starred, onStar }: { sem: Semester; courses
 
 export default function Topics() {
   const { program = '' } = useParams();
-  const p = PROGRAMS.find((x) => x.slug === program && !x.soon);
+  const { user } = useAuth();
+  const open = (slug?: string) => PROGRAMS.find((x) => x.slug === slug && !x.soon);
+  const p = open(program);
   useSeo({ title: `${p?.short ?? 'Topics'} · ${SITE}`, noindex: true });
   const { data } = useQuery<{ courses: CourseCard[] }>('courses', '/api/courses');
   const slugs = (data?.courses ?? []).map((c) => c.slug);
   const details = useQueries<CourseDetail>(slugs.map((s) => [`course:${s}`, `/api/courses/${encodeURIComponent(s)}`]));
   const [stars, toggleStar] = useStars();
-  useEffect(() => window.scrollTo(0, 0), [program]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [program]);
   const byslug = useMemo(() => new Map(details.filter((d): d is CourseDetail => Boolean(d)).map((d) => [d.slug, d])), [details]);
-  if (!p) return <Navigate to="/app/topics" replace />;
+  // /app/topics: the program picked at onboarding, or Explore to pick one.
+  if (!p) return <Navigate to={!program && open(user?.program) ? `/app/topics/${user?.program}` : '/app/explore'} replace />;
   const loading = !data || details.some((d) => !d);
   return (
     <div className="mx-auto w-[min(1184px,100%-32px)] pb-20 pt-[64px] max-sm:pt-8">
-      <h1 title={p.name} className="font-clash text-[32px] font-medium leading-10 text-[#18251e] dark:font-sans dark:font-semibold dark:text-[#dae7e0]">{p.short}</h1>
+      <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+        <h1 title={p.name} className="font-clash text-[32px] font-medium leading-10 text-[#18251e] dark:font-sans dark:font-semibold dark:text-[#dae7e0]">{p.short}</h1>
+        <Link to="/app/explore" className="text-sm font-medium text-[#456dff] hover:underline">Change course</Link>
+      </div>
       {loading ? (
         <div aria-busy className="mt-[45px] h-[295px] animate-pulse rounded-[32px] bg-[#f5f6f8] dark:bg-white/5" />
       ) : (

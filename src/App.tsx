@@ -64,7 +64,8 @@ export function App() {
             <Route path="courses" element={<Courses />} />
             <Route path="app" element={authed(<ComingSoon key="home" title="Home" />)} />
             <Route path="app/you" element={authed(<ComingSoon key="you" title="You" />)} />
-            <Route path="app/topics" element={authed(<Explore />)} />
+            <Route path="app/explore" element={authed(<Explore />)} />
+            <Route path="app/topics" element={authed(<Topics />)} />
             <Route path="app/topics/:program" element={authed(<Topics />)} />
             <Route path="app/premium/:slug" element={authed(<Premium />)} />
             <Route path="app/courses" element={<Navigate to="/app/topics" replace />} />

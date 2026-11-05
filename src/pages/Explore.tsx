@@ -1,13 +1,16 @@
-// /app/topics, "Explore Courses": every program as a card, with search, the
-// University / Level filters and a sort. An open program (BEI) goes to its
-// semesters at /app/topics/:program; the rest say "Coming soon". Catalogue
-// courses no program lists (the free taster) sit under "Free to try".
+// /app/explore, "Explore Courses": the onboarding step where a learner picks
+// their program. Every program is a card, with search, the University / Level
+// filters and a sort. Picking an open program (BEI) saves it on the account
+// (PUT /api/me/program) and opens its semesters; from then on /app/topics
+// goes straight there. The rest say "Coming soon". Catalogue courses no
+// program lists (the free taster) sit under "Free to try".
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LEVELS, PROGRAMS, UNIVERSITIES, linkedCourses, type Program } from '../data/curriculum';
-import { useQuery } from '../lib/api';
+import { api, useQuery } from '../lib/api';
+import { useAuth } from '../lib/auth';
 import { SITE, useSeo } from '../lib/seo';
-import type { CourseCard } from '../lib/types';
+import type { CourseCard, User } from '../lib/types';
 
 const ChipIcon = () => (
   <svg width="64" height="64" viewBox="0 0 64 64" fill="none" aria-hidden>
@@ -66,7 +69,7 @@ const Radio = ({ name, checked, onChange, children }: { name: string; checked: b
   </label>
 );
 
-function Card({ title, subtitle, place, chips, icon, to, soon }: { title: string; subtitle: string; place: string; chips: string[]; icon: React.ReactNode; to?: string; soon?: boolean }) {
+function Card({ title, subtitle, place, chips, icon, to, soon, onPick }: { title: string; subtitle: string; place: string; chips: string[]; icon: React.ReactNode; to?: string; soon?: boolean; onPick?: () => void }) {
   const inner = (
     <>
       <span className="flex h-[98px] w-[98px] shrink-0 items-center justify-center rounded-[18px] bg-[linear-gradient(145deg,#f4f6fb,#eceff6)] shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] dark:bg-[linear-gradient(145deg,#1d1f24,#141518)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] max-sm:h-[72px] max-sm:w-[72px] [&_svg]:max-sm:h-12 [&_svg]:max-sm:w-12">
@@ -100,7 +103,7 @@ function Card({ title, subtitle, place, chips, icon, to, soon }: { title: string
   const cls = 'group relative flex items-center gap-7 rounded-[22px] border border-[#e6e8ee] bg-white px-7 py-7 transition dark:border-[#242424] dark:bg-[#111111] max-sm:gap-4 max-sm:px-4 max-sm:py-5 ';
   if (soon || !to) return <div className={cls + 'opacity-60'} aria-label={`${title}: coming soon`}>{inner}</div>;
   return (
-    <Link to={to} className={cls + 'hover:border-[#c9d6f5] hover:shadow-[0_10px_30px_rgba(59,130,246,0.10)] dark:hover:border-[#2f3b55]'}>
+    <Link to={to} onClick={onPick} className={cls + 'hover:border-[#c9d6f5] hover:shadow-[0_10px_30px_rgba(59,130,246,0.10)] dark:hover:border-[#2f3b55]'}>
       {inner}
     </Link>
   );
@@ -110,6 +113,14 @@ const placeOf = (p: Program) => (p.university === 'IOE' ? 'IOE, Tribhuvan Univer
 
 export default function Explore() {
   useSeo({ title: `Explore courses · ${SITE}`, noindex: true });
+  const { user, setUser } = useAuth();
+  // Save the pick on the account; the card's link has already moved on.
+  const pick = (slug: string) => {
+    if (user) setUser({ ...user, program: slug });
+    api<{ user: User }>('/api/me/program', { method: 'PUT', body: { program: slug } })
+      .then((r) => setUser(r.user))
+      .catch(() => {});
+  };
   const { data } = useQuery<{ courses: CourseCard[] }>('courses', '/api/courses');
   const [q, setQ] = useState('');
   const [uni, setUni] = useState<string | null>('IOE');
@@ -159,6 +170,7 @@ export default function Explore() {
     <div className="relative isolate">
       <div aria-hidden className="pointer-events-none absolute -left-40 top-40 -z-10 hidden h-[520px] w-[520px] rounded-full bg-[#1d3a8a]/25 blur-[120px] dark:block" />
       <div className="mx-auto w-[min(1384px,100%-32px)] pb-24 pt-[72px] max-sm:pt-8">
+        {!user?.program ? <p className="mb-3 text-sm font-medium text-[#3b82f6]">Step 1 · Choose your course</p> : null}
         <h1 className="text-[48px] font-semibold leading-[1.1] tracking-[-0.02em] max-sm:text-[34px]">
           <span className="text-[#0f1713] dark:text-white">Explore</span> <span className="text-[#9a9fa3] dark:text-[#a3a3a3]">Courses</span>
         </h1>
@@ -261,6 +273,7 @@ export default function Explore() {
                     icon={p.icon === 'chip' ? <ChipIcon /> : <CodeIcon />}
                     to={p.soon ? undefined : `/app/topics/${p.slug}`}
                     soon={p.soon}
+                    onPick={p.soon ? undefined : () => pick(p.slug)}
                   />
                 ))}
               </div>
