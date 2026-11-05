@@ -100,7 +100,7 @@ export default function Subject() {
   return (
     <div className="mx-auto grid w-[min(1030px,100%-32px)] items-start gap-x-[62px] gap-y-10 pb-28 pt-[65px] max-md:pt-8 md:grid-cols-[482px_minmax(0,457px)]">
       <section className="rounded-[25.6px] border-[0.75px] border-[#b4b4b4] bg-white px-[32px] pb-[40px] pt-[12px] dark:border-white/20 dark:bg-[#141414] md:sticky md:top-[85px]">
-        <img src={hero} width={119} height={104} alt="" className={"h-[104px] w-[119px] object-contain " + (hero.includes("ic-") ? "dark:invert" : "")} />
+        <img src={hero} width={119} height={104} alt="" className={"h-[104px] w-[119px] object-contain " + (hero.includes("ic-") ? "mix-blend-multiply dark:mix-blend-screen dark:invert dark:hue-rotate-180" : "")} />
         <div className="mt-[26px] flex items-baseline justify-between gap-4">
           <h1 className="font-clash text-2xl font-semibold leading-8 text-black dark:text-white">{s.title}</h1>
           <span className="text-xl font-semibold leading-7 text-[#456dff]">{pct}%</span>
