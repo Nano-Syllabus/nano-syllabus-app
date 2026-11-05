@@ -7,7 +7,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { api, useQueries, useQuery } from '../lib/api';
 import { useAuth } from '../lib/auth';
-import { config } from '../lib/config';
 import { SITE, useSeo } from '../lib/seo';
 import type { CourseCard, CourseDetail, User } from '../lib/types';
 import { Bolt } from '../ui/TopNav';
@@ -149,7 +148,7 @@ function SemesterRow({ sem, courses, starred, onStar }: { sem: Semester; courses
     const c = x.course ? courses.get(x.course) : undefined;
     const lessons = c ? c.subjects.reduce((n, s) => n + s.lessonCount, 0) : 0;
     const done = c ? c.subjects.reduce((n, s) => n + s.done, 0) : 0;
-    const live = Boolean(c && (lessons > 0 || config.appCourses[c.slug]));
+    const live = Boolean(c && lessons > 0);
     const state: TileState = !c || !live ? 'soon' : hasAccess(c, admin) ? 'open' : 'locked';
     const to = !c ? '' : state === 'locked' ? `/app/premium/${c.slug}` : courseHref(c);
     const pct = lessons ? Math.round((100 * done) / lessons) : 0;

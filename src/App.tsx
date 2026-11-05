@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { NotFound, RequireAuth } from './components/bits';
 import Landing from './pages/Landing';
@@ -18,7 +18,6 @@ const Teach = lazy(() => import('./pages/Teach'));
 const TeachPreview = lazy(() => import('./pages/TeachPreview'));
 const Admin = lazy(() => import('./pages/Admin'));
 const Onboarding = lazy(() => import('./pages/Onboarding'));
-const AppCourse = lazy(() => import('./pages/AppCourse'));
 const Topics = lazy(() => import('./pages/Topics'));
 const Explore = lazy(() => import('./pages/Explore'));
 const ComingSoon = lazy(() => import('./pages/ComingSoon'));
@@ -70,7 +69,7 @@ export function App() {
             <Route path="app/premium/:slug" element={authed(<Premium />)} />
             <Route path="app/courses" element={<Navigate to="/app/topics" replace />} />
             <Route path="app/courses/:slug" element={authed(<CoursePath />)} />
-            <Route path="app/courses/:slug/learn" element={authed(<AppCourse />)} />
+            <Route path="app/courses/:slug/learn" element={<ToCourse />} />
             <Route path="app/checkout/:slug" element={authed(<Checkout />)} />
             <Route path="app/payment/result" element={authed(<PaymentResult />)} />
             <Route path="app/courses/:slug/:subject" element={authed(<Subject />)} />
@@ -85,4 +84,10 @@ export function App() {
       </Suspense>
     </>
   );
+}
+
+// The old /learn link (the Spark lab app, removed 2026-11-05) opens the course path.
+function ToCourse() {
+  const { slug = '' } = useParams();
+  return <Navigate to={`/app/courses/${slug}`} replace />;
 }

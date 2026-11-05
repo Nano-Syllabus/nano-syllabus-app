@@ -4,7 +4,6 @@
 import { Link, Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '../lib/api';
 import { useAuth } from '../lib/auth';
-import { config } from '../lib/config';
 import { SITE, useSeo } from '../lib/seo';
 import type { CourseDetail } from '../lib/types';
 import { COMBO_PER_SUBJECT } from './Topics';
@@ -68,7 +67,7 @@ export default function Premium() {
   useSeo({ title: `Premium · ${c?.title ?? 'Course'} · ${SITE}`, noindex: true });
   if (error) return <Navigate to="/app/topics" replace />;
   if (c && (c.owned || c.pricePaisa === 0 || user?.role === 'admin')) {
-    return <Navigate to={config.appCourses[slug] ? `/app/courses/${slug}/learn` : '/app/topics'} replace />;
+    return <Navigate to={`/app/courses/${slug}`} replace />;
   }
   const rowCls = 'flex h-[54px] items-center border-t border-[#e7e9f4] dark:border-white/10';
   return (

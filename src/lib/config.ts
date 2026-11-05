@@ -14,8 +14,6 @@ export type RuntimeConfig = {
   googleAuth: boolean;
   /** The server emails sign-up and password-reset codes. */
   emailCodes: boolean;
-  /** Courses played by their own app (slug → its URL), e.g. Electrical Machines → /em/. */
-  appCourses: Record<string, string>;
 };
 
 declare global {
@@ -32,6 +30,5 @@ export const config: RuntimeConfig = {
   lessonApi: 1,
   googleAuth: false,
   emailCodes: false,
-  appCourses: {},
   ...(typeof window !== 'undefined' ? window.__NS_CONFIG__ : undefined),
 };

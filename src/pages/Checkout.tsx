@@ -10,7 +10,6 @@ import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-r
 import qrcode from 'qrcode-generator';
 import { api, invalidate, prefetch, useQuery } from '../lib/api';
 import { useAuth } from '../lib/auth';
-import { config } from '../lib/config';
 import { SITE, useSeo } from '../lib/seo';
 import type { CourseDetail } from '../lib/types';
 import { BrandCorner, PayBackdrop, rupees } from './Premium';
@@ -141,7 +140,7 @@ export default function Checkout() {
   const step: 1 | 2 | 3 = approved || pending ? 3 : params.get('step') === '2' ? 2 : 1;
   const amount = c ? `NPR ${rupees(c.pricePaisa)}` : '…';
   const remark = status?.remark ?? '…';
-  const startHref = config.appCourses[slug] ? `/app/courses/${slug}/learn` : '/app/topics';
+  const startHref = `/app/courses/${slug}`;
 
   async function choose(f: File | undefined) {
     if (!f) return;

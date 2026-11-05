@@ -3,14 +3,12 @@
 // "Unit N" header with its lessons on the winding path, the next lesson marked
 // by the mascot, and the floating Start card. Units without lessons say so.
 import { useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { ErrorBox, NotFound } from '../components/bits';
 import { useQueries, useQuery } from '../lib/api';
 import { useAuth } from '../lib/auth';
-import { config } from '../lib/config';
 import { SITE, useSeo } from '../lib/seo';
 import type { CourseDetail, LessonSummary, SubjectDetail } from '../lib/types';
-import AppCoursePath from './AppCoursePath';
 import { StartCard, Stop, SubjectCard, UnitHeader } from './Subject';
 import { subjectIcon } from './Topics';
 
@@ -18,17 +16,7 @@ const unitTitle = (t: string) => t.replace(/^Unit \d+\s*·\s*/, '');
 
 export default function CoursePath() {
   const { slug = '' } = useParams();
-  // A course that is its own app shows that app's outline (see AppCoursePath).
-  return config.appCourses[slug] ? <AppPath key={slug} slug={slug} /> : <PlainCoursePath key={slug} />;
-}
-
-function AppPath({ slug }: { slug: string }) {
-  const { data: c, error } = useQuery<CourseDetail>(`course:${slug}`, `/api/courses/${encodeURIComponent(slug)}`);
-  useSeo({ title: `${c?.title ?? 'Course'} · ${SITE}`, noindex: true });
-  if (error?.status === 404) return <NotFound />;
-  if (error) return <main className="mx-auto w-[min(1030px,100%-32px)] py-16"><ErrorBox message={error.message} retry={() => location.reload()} /></main>;
-  if (!c) return <div className="mx-auto grid w-[min(1030px,100%-32px)] gap-16 py-16 md:grid-cols-[482px_1fr]"><div className="h-[332px] animate-pulse rounded-[26px] bg-[#f5f6f8] dark:bg-white/5" /></div>;
-  return <AppCoursePath slug={slug} app={config.appCourses[slug]} c={c} />;
+  return <PlainCoursePath key={slug} />;
 }
 
 function PlainCoursePath() {
@@ -72,18 +60,10 @@ function PlainCoursePath() {
   const premium = `/app/premium/${slug}`;
   const icon = subjectIcon(c.title, 0);
   const hero = icon.includes('ic-physics') ? '/app/subject-hero.webp' : icon;
-  const fullApp = config.appCourses[slug] && (c.owned || user?.role === 'admin');
 
   return (
     <div className="mx-auto grid w-[min(1030px,100%-32px)] items-start gap-x-[62px] gap-y-10 pb-28 pt-[65px] max-md:pt-8 md:grid-cols-[482px_minmax(0,457px)]">
-      <SubjectCard hero={hero} title={c.title} pct={pct} summary={c.tagline || c.description} total={total} exercises={exercises} unlock={has ? null : premium}>
-        {fullApp ? (
-          <Link to={`/app/courses/${slug}/learn`} className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#456dff] hover:underline">
-            Open the full interactive course
-            <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden><path d="M2 10 10 2M4 2h6v6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
-          </Link>
-        ) : null}
-      </SubjectCard>
+      <SubjectCard hero={hero} title={c.title} pct={pct} summary={c.tagline || c.description} total={total} exercises={exercises} unlock={has ? null : premium} />
 
       <section className="relative min-w-0">
         {c.subjects.map((s, ui) => {
