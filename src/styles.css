@@ -209,6 +209,8 @@ a.list-item:hover { background: var(--bg-soft); }
 .guide-step { min-width: 0; gap: 10px; }
 .guide-step p { margin: 0; }
 .guide-say .code pre { border-left: 3px solid var(--primary); font-family: inherit; font-size: 0.95rem; }
+.guide-tree { margin: 0; padding: 14px 16px; overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-soft); font-size: 0.82rem; line-height: 1.5; }
+.guide-body h3 { margin: 8px 0 0; }
 .guide-note { padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-soft); }
 .guide-note p { margin-top: 4px; }
 .guide-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }

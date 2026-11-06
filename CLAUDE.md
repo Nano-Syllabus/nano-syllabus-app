@@ -93,8 +93,8 @@ Don't re-port from nano_sylabus without merging these changes back in.
 ### 6. Teacher pages (2026-11-04): uncommitted
 | Route | File | What |
 |---|---|---|
-| `/app/teacher/guide` (`/teach` and `/app/teach/guide` redirect here, section links included) | `src/pages/TeachGuide.tsx` | public guide: what you need, the 8 steps with example prompts, the rules, the review states, troubleshooting, other AI tools (MCP), FAQ |
-| `/app/teach` | `src/pages/Teach.tsx` | students see how to get access; teachers see plugin install, access tokens (shown once), courses and submissions |
+| `/app/teacher/guide` (`/teach` and `/app/teach/guide` redirect here, section links included) | `src/pages/TeachGuide.tsx` | public guide (in-house studio since 2026-11-06): what you need, the 8 steps (clone → `npm run studio` → Setup key → documents → graph → parse/questions/topic content → video production + House rules agent → `npm run check`/`push`), studio pages, agents, review states, troubleshooting, FAQ |
+| `/app/teach` | `src/pages/Teach.tsx` | students see how to get access; teachers see "Start the studio" (clone + `npm run studio`), teacher keys (shown once), courses and submissions |
 | `/app/teach/preview/:id` | `src/pages/TeachPreview.tsx` | a push played in the real player; admins approve or send back |
 | `/app/admin` | `src/pages/Admin.tsx` | review queue, all submissions, Teachers (add or remove by email) |
 

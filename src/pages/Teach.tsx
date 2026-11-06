@@ -1,4 +1,4 @@
-// /app/teach: a teacher's home. Connect Claude Code (plugin + token), see
+// /app/teach: a teacher's home. Start the in-house studio (clone + teacher key), see
 // their courses and every push with its check report and the reviewer's note.
 
 import { useState } from 'react';
@@ -50,19 +50,15 @@ function TeacherHome() {
       {error && <ErrorBox message={error.message} retry={() => location.reload()} />}
 
       <section className="card stack">
-        <h2>Connect Claude Code</h2>
-        <p className="muted">Once per computer. Then ask Claude to make a course; it checks, previews and pushes it for you.</p>
+        <h2>Start the studio</h2>
+        <p className="muted">Once per computer. The studio turns a subject's documents into video lessons with Claude Code, then pushes the course here for review.</p>
         <ol className="stack" style={{ paddingLeft: 20, margin: 0 }}>
           <li>
-            In Claude Code, add the Nano Syllabus plugin:
-            <CopyBlock text={'/plugin marketplace add Nano-Syllabus/nano-syllabus-toolkit\n/plugin install nano-syllabus@nano-syllabus'} />
+            Clone the toolkit (team access needed) and start it:
+            <CopyBlock text={'git clone git@github.com:Nano-Syllabus/nano-syllabus-toolkit.git\ncd nano-syllabus-toolkit\nnpm run setup\nnpm run studio'} />
           </li>
-          <li>
-            Create an access token below, then tell Claude: <span className="prompt" style={{ display: 'inline-block' }}>Sign me in to Nano Syllabus with this token: nst_…</span>
-          </li>
-          <li>
-            Start: <span className="prompt" style={{ display: 'inline-block' }}>Make a Nano Syllabus course from this syllabus</span> (attach the PDF or paste it).
-          </li>
+          <li>Create a teacher key below and paste it on the studio's <b>Setup</b> page.</li>
+          <li>Link the subject's documents on <b>Documents linked</b>. <Link to="/app/teacher/guide#steps">The guide</Link> walks through the rest.</li>
         </ol>
       </section>
 
@@ -157,16 +153,13 @@ function Tokens({ tokens, site }: { tokens?: ApiToken[]; site: string }) {
     <section id="tokens" className="card stack">
       <h2>Access tokens</h2>
       <p className="muted small">
-        A token lets Claude Code (and other AI tools) push courses as you. Keep it like a password; revoke it if it leaks.
+        A teacher key lets the studio push courses as you. Keep it like a password; revoke it if it leaks.
       </p>
       {fresh && (
         <div className="alert alert-success stack">
           <b>Copy this token now. It is not shown again.</b>
           <CopyBlock text={fresh} />
-          <span className="small">Give it to Claude ("sign me in to Nano Syllabus with this token"), or run:</span>
-          <CopyBlock text={`ns login ${fresh}${site.includes('live.nanosyllabus.com') ? '' : ` --server ${site}`}`} />
-          <span className="small">For the MCP connector, also set it in your shell profile:</span>
-          <CopyBlock text={`export NANO_SYLLABUS_TOKEN=${fresh}`} />
+          <span className="small">Paste it on the studio's <b>Setup</b> page{site.includes('live.nanosyllabus.com') ? '' : <> with the server <code>{site}</code></>}.</span>
         </div>
       )}
       <div className="row" style={{ flexWrap: 'wrap' }}>

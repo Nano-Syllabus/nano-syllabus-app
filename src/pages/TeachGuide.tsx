@@ -1,6 +1,7 @@
-// /app/teacher/guide: the teacher guide, from nothing to a live course. Public on
-// purpose, so a teacher can read it before they have an account. /teach and
-// /app/teach/guide redirect here. Every step links to the page it talks about.
+// /app/teacher/guide: the in-house guide (2026-11-06), from a clone of the toolkit to a
+// live course. The toolkit is used by the Nano Syllabus team, not installed by outside
+// teachers: clone it, run the studio, and make courses there. Public on purpose (it
+// explains the flow); /teach and /app/teach/guide redirect here.
 
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
@@ -14,66 +15,131 @@ const TOOLS = '/app/teach';
 const SECTIONS = [
   ['need', 'What you need'],
   ['steps', 'The 8 steps'],
-  ['prompts', 'Things to ask Claude'],
+  ['pages', 'The studio pages'],
+  ['agents', 'The agents'],
+  ['house', 'Talking to the House rules agent'],
   ['rules', 'The rules'],
   ['review', 'After you push'],
   ['trouble', 'If something goes wrong'],
-  ['other-ai', 'Other AI tools'],
   ['faq', 'Questions'],
 ] as const;
 
 const NEED: [string, ReactNode, ReactNode][] = [
-  ['Nano Syllabus account', 'With the Teacher role. The team adds it in step 1.', <Link key="a" to={`/signup?next=${GUIDE}`}>Create an account</Link>],
-  ['GitHub account', 'The plugin lives in a private repository. The team invites you in step 1.', <a key="b" href="https://github.com/signup" target="_blank" rel="noopener noreferrer">Sign up on GitHub</a>],
-  ['Claude Code', 'On Windows, macOS or Linux. It needs a paid Claude plan or an API key.', <a key="c" href="https://claude.com/claude-code" target="_blank" rel="noopener noreferrer">Install Claude Code</a>],
-  ['Node.js 20 or newer', 'The toolkit runs on it and installs everything else it needs.', <a key="d" href="https://nodejs.org" target="_blank" rel="noopener noreferrer">Install Node.js</a>],
-  ['Git', 'Claude Code uses it to fetch the plugin. Sign it in to GitHub with gh auth login or an SSH key.', <a key="e" href="https://git-scm.com/downloads" target="_blank" rel="noopener noreferrer">Install Git</a>],
-  ['Your syllabus', 'A PDF, a photo or the text, plus any notes or past questions you want to use.', null],
+  ['Team access', 'The toolkit repository is private, for the Nano Syllabus team. Ask to be added on GitHub.', null],
+  ['Nano Syllabus account', 'With the Teacher role, for the key that pushes courses. An admin gives the role.', <Link key="a" to={`/signup?next=${GUIDE}`}>Create an account</Link>],
+  ['Claude Code', 'Logged in once on your computer. The studio runs it for you: it reads, parses and writes. No API key.', <a key="c" href="https://claude.com/claude-code" target="_blank" rel="noopener noreferrer">Install Claude Code</a>],
+  ['Node.js 20 and Git', 'The studio runs on Node. Git clones the toolkit.', <a key="d" href="https://nodejs.org" target="_blank" rel="noopener noreferrer">Install Node.js</a>],
+  ['The subject\'s documents', 'Syllabus, past questions, notes and reference books. PDFs (scanned is fine), photos or text.', null],
 ];
 
-const PROMPTS = [
-  'Turn my notes on transformers (attached) into three lessons: one reading with the derivation, one interactive, one solved past question.',
-  'Make lesson 4 an interactive lesson where students drag the load and see the efficiency curve.',
-  'Solve IOE 2079 Baishakh Q3(b) as a reading, step by step.',
-  'This intro video is 400 MB. Make it small enough and add it as the first lesson.',
-  'What did the reviewer say about my last push? Fix it and push again.',
+const PAGES: [string, string][] = [
+  ['Setup', 'Your teacher key and the Claude Code check. The studio opens here until the key is saved.'],
+  ['Documents linked', 'University, level, faculty, semester and subject, then the four shelves of documents. Each subject shows its five steps.'],
+  ['Parsed structure', 'The syllabus graph: units → topics → micro-topics, with the past questions linked to each. Edit anything.'],
+  ['Experiment', 'Manual mode: change the house rules or one agent\'s prompt yourself, run it on a real topic, compare. Nothing is saved until you keep it.'],
+  ['Video production', 'Each topic\'s ten steps, from topic content to output, and the House rules agent (chat with Claude Code, or manual).'],
+  ['Provider', 'Claude Code is the default. API providers are optional for the other agents.'],
+  ['Logs', 'Every document linked, agent run (with its time and steps), change kept or reverted, and error.'],
+  ['Pipeline', 'Every agent in order, read only. Click one to read what it does and the instructions it follows now.'],
+];
+
+const PREP: [string, string][] = [
+  ['Syllabus agent + checker', 'Reads the syllabus shelf only and makes the graph: units, topics and their micro-topics, in the syllabus\'s own order and words.'],
+  ['Parser agents', 'Claude Code, several at once. Each reads 10 pages of one document (scans as images: the OCR) and writes faithful Markdown with page markers.'],
+  ['Question linker', 'Reads the parsed past papers and links every question to its topic and, when clear, its micro-topic.'],
+  ['Topic content agent', 'Searches the parsed Markdown for one topic and writes its content file, with the source and page of every passage. Video generation starts from this file.'],
+];
+
+const MAKERS: [string, string][] = [
+  ['House rules agent', 'Takes what you want changed, in your words, and edits the other agents\' instructions. You keep or revert each change.'],
+  ['Brief agent', 'Objectives, key ideas, formulas, misconceptions and the linked past questions, from the topic content file.'],
+  ['Script agent', 'The three segments beat by beat, with the board lines. Follows the layout rules.'],
+  ['Narration agent', 'The caption for every beat, shown on screen and read aloud.'],
+  ['Animation agent', 'The 3D machine tour for Basic Understanding and the figures beside the board.'],
+  ['Questions agent', 'Questions inside the videos; the video pauses until the student answers.'],
+];
+
+const REVIEWERS: [string, string][] = [
+  ['Nepali education agent', 'Real syllabus and board, papers only from the question bank with year, session and marks, answers that earn full marks, Nepali textbook symbols.'],
+  ['Layout agent', 'Beat by beat on a wide screen and a phone: overflow, page turns, crowding, colliding labels, a box inside a box.'],
+  ['Accuracy agent', 'Redoes every number, formula, unit, direction and question answer.'],
+  ['Content quality agent', 'Would a student understand and remember it: no step from nowhere, every point covered, no padding.'],
+];
+
+const SEGMENTS: [string, string][] = [
+  ['1 · Basic Understanding', 'An overview of what you will learn, then one video in 3D: a walk around the machine, part by part, no maths.'],
+  ['2 · Syllabus Content', 'One video per syllabus point: definitions first, then each derivation step by step on the board.'],
+  ['3 · Model Answer', 'One exam question answered the way the marking scheme pays, from a real past paper when there is one.'],
+];
+
+const HOUSE_SAYS = [
+  'Keep every caption under 14 words.',
+  'For this topic, start the 3D tour from a transformer on an electric pole.',
+  'Put every derivation step on its own beat, and say the unit with each answer.',
+  'Use IOE exam phrasing in the Model Answer for every Electrical Machines topic.',
+  'Fewer questions inside the videos: one per segment.',
 ];
 
 const RULES: [string, string][] = [
-  ['Follow the syllabus', 'One subject per unit, in order, with the board\'s notation and SI units.'],
-  ['One idea per lesson', '2–8 minutes. Every interactive lesson ends with a check that explains each wrong answer.'],
-  ['Worked solutions are numbered steps', 'One operation each, with the final answer and its unit in bold.'],
-  ['Original work', 'Quote past questions with board and year; the solutions are yours. No copied textbook pages or videos.'],
-  ['Lessons run in a sandbox', 'No internet, no storage, no access to the student\'s account. Data and images go in the lesson folder.'],
-  ['Nothing private in the course folder', 'No passwords, tokens or personal data. Everything in it can be published.'],
+  ['Follow the syllabus', 'The graph comes from the syllabus only, in its order, with the board\'s notation and SI units.'],
+  ['Teach from the documents', 'Every passage in the topic content cites its source and page. Nothing is invented; gaps are listed as gaps.'],
+  ['Worked solutions are numbered steps', 'One operation each, with the final answer and its unit.'],
+  ['Original work', 'Quote past questions with board and year; the solutions are ours. No copied textbook pages or videos.'],
+  ['Lessons run in a sandbox', 'No internet, no storage, no access to the student\'s account.'],
+  ['Documents stay on your computer', 'sources/ and the parsed Markdown are never pushed. Only courses/ and media/ are.'],
 ];
 
 const STATUSES: [string, string, string, string][] = [
   ['building', 'Checking', 'The site is checking and building your push.', 'Wait. It usually takes under a minute.'],
-  ['failed', 'Failed checks', 'Something would break for students.', 'Ask Claude what failed. It fixes it and pushes again.'],
-  ['review', 'Waiting for review', 'It passed. A reviewer looks at it in the real player.', 'Wait, usually a day or two.'],
-  ['rejected', 'Sent back', 'The reviewer left a note on what to change.', 'Ask Claude to read the note and fix it.'],
+  ['failed', 'Failed checks', 'Something would break for students.', 'Run npm run check, fix the ✗ lines, push again.'],
+  ['review', 'Waiting for review', 'It passed. An admin plays it in the real player.', 'Wait for the review.'],
+  ['rejected', 'Sent back', 'The reviewer left a note on what to change.', 'Read it with npm run status, fix it in the studio, push again.'],
   ['approved', 'Live', 'Every signed-in student can take it.', 'Push again any time. Students keep their progress.'],
 ];
 
 const TROUBLE: [string, ReactNode][] = [
-  ['The plugin says the repository was not found', <>You haven't accepted the GitHub invite, or Git isn't signed in. Accept the invite from the email, run <code>gh auth login</code> in a terminal, then try again.</>],
-  ['Claude can\'t find the skills after installing', 'Restart Claude Code, then ask again.'],
-  ['The toolkit says Node is too old or missing', <>Run <code>node --version</code>. Install version 20 or newer, then restart Claude Code.</>],
-  ['There is no token section on Teacher tools', 'Your account is still a student account. Send your email to the team and ask for the Teacher role.'],
-  ['Sign-in is refused', <>The token may be revoked or mistyped. <Link to={`${TOOLS}#tokens`}>Create a new one</Link> and sign in again.</>],
-  ['A lesson says it can\'t load something', 'Lessons have no internet. Ask Claude to put the file in the lesson folder.'],
-  ['Anything else', 'Ask Claude "what went wrong?" first; the messages say what to fix. Otherwise send the team your submission number.'],
+  ['Setup says Claude Code was not found', <>Install Claude Code, run <code>claude</code> once in a terminal and log in, then reload the studio.</>],
+  ['A run says Claude Code is not signed in', <>Run <code>claude</code> in a terminal, log in, and press the button again.</>],
+  ['The teacher key is refused', <>It may be revoked or mistyped. <Link to={`${TOOLS}#tokens`}>Create a new one</Link> and paste it on Setup.</>],
+  ['There is no token section on Teacher tools', 'Your account is still a student account. Ask an admin for the Teacher role.'],
+  ['Some pages failed to parse', 'Press Parse the rest. Finished page ranges are kept; only the missing ones run again.'],
+  ['Build graph opened a draft instead', 'The checks found something in the syllabus. Fix it in the draft and apply it, then correct the rest on Parsed structure.'],
+  ['A House rules change shows "placeholders"', 'The agent dropped a {{…}} the studio fills in. Look at the diff; revert it or ask the agent to put it back.'],
+  ['A lesson says it can\'t load something', 'Lessons have no internet. The file has to be in the lesson folder or media/.'],
+  ['Anything else', 'Open Logs: every failed run shows its steps and the error.'],
 ];
 
 const FAQ: [string, ReactNode][] = [
-  ['Do I need to know how to code?', 'No. You describe what you want; Claude writes the files, runs the checks and fixes errors. You review the lessons in the preview, like a student would.'],
-  ['Who owns the course?', 'You do. Only you and our admins can push updates to a course you created. Your name is on it.'],
-  ['How big can videos be?', 'Up to 500 MB each, but aim for under 200 MB (720p is plenty). Ask Claude to shrink a big video; it uses ffmpeg if you have it installed.'],
-  ['Can I work on several courses?', <>Yes. Keep them in the same folder and push one at a time (<i>"push the physics course"</i>).</>],
-  ['Can I charge for my course?', 'Not yet. Teacher courses are free for students while we start. Talk to us if you want to offer a paid course.'],
-  ['How do I get plugin updates?', <>In Claude Code, type <code>/plugin</code> and update <b>nano-syllabus</b> from the menu.</>],
+  ['Do I need to know how to code?', 'No. You fill in forms, drop documents, correct the structure and tell the House rules agent what you want. The studio and Claude Code do the rest.'],
+  ['Does it cost anything per lesson?', 'The studio uses your own Claude Code login, so it counts against your Claude plan. Logs shows how many AI calls each step made.'],
+  ['Is this RAG?', 'No. Claude Code agents read every page and turn it into Markdown first; the topic content agent then searches that text and cites the pages.'],
+  ['Does it make MP4 files?', 'No. A lesson is drawn live in the player with captions and an optional voice, which is what students see on the site.'],
+  ['Where do my documents go?', <>Into <code>workspace/sources/</code> in your clone of the toolkit. They are never pushed or uploaded anywhere.</>],
+  ['How do I get toolkit updates?', <>Run <code>git pull</code> in the toolkit folder, then <code>npm run setup</code> if the packages changed.</>],
 ];
+
+const TREE = `nano-syllabus-toolkit/
+└── workspace/          made by npm run studio (not in git)
+    ├── sources/        your documents: never leave this computer
+    │   └── tu-bachelor-bct/semester-5/computer-graphics/
+    │       ├── syllabus/  question-bank/  notes/  reference-books/
+    ├── courses/        the lessons: this is what gets pushed
+    ├── media/          images and video lessons use: also pushed
+    ├── studio/         your changes to the agents
+    └── .studio/        parsed Markdown, topic content, agent work, logs`;
+
+function Cards({ items }: { items: [string, string][] }) {
+  return (
+    <div className="guide-need">
+      {items.map(([what, why]) => (
+        <div key={what}>
+          <b>{what}</b>
+          <span className="muted small">{why}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function Step({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -86,7 +152,7 @@ function Step({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-/** Something to say to Claude, with a Copy button. */
+/** Something to type, with a Copy button. */
 function Say({ children }: { children: string }) {
   return <div className="guide-say"><CopyBlock text={children} /></div>;
 }
@@ -96,24 +162,24 @@ export default function TeachGuide() {
   const teacher = user?.role === 'teacher' || user?.role === 'admin';
   useHashScroll();
   useSeo({
-    title: `Teacher guide · ${SITE}: make a course with Claude Code`,
-    description: 'How teachers turn a syllabus into short interactive lessons with Claude Code, check them, preview them and publish them on Nano Syllabus.',
+    title: `Studio guide · ${SITE}: from a syllabus to video lessons`,
+    description: 'How the Nano Syllabus team turns a university syllabus, notes and past papers into interactive video lessons with the in-house studio and Claude Code.',
   });
 
   return (
     <main className="wrap page guide">
       <header className="guide-hero stack">
-        <span className="badge">Teacher guide</span>
-        <h1>Make a course with Claude Code</h1>
+        <span className="badge">Studio guide · in house</span>
+        <h1>From a syllabus to video lessons</h1>
         <p className="muted">
-          You know the subject. Claude Code writes the lessons with you, our toolkit checks them the way the site will, and you send the course
-          to us for a quick review. Once approved, it is live for every student, free.
+          The Nano Syllabus studio runs on your computer. You give it a subject's documents; it builds the syllabus graph, parses every page with
+          Claude Code, gathers each topic's content, and makes the video lessons. You correct and steer it, then push the course for review.
         </p>
         <div className="row" style={{ flexWrap: 'wrap' }}>
           {teacher ? (
-            <Link className="btn btn-primary" to={TOOLS}>Open teacher tools</Link>
+            <Link className="btn btn-primary" to={`${TOOLS}#tokens`}>Get your teacher key</Link>
           ) : user ? (
-            <Link className="btn btn-primary" to={TOOLS}>Request teacher access</Link>
+            <Link className="btn btn-primary" to={TOOLS}>Teacher tools</Link>
           ) : (
             <Link className="btn btn-primary" to={`/signup?next=${GUIDE}`}>Create an account</Link>
           )}
@@ -144,78 +210,81 @@ export default function TeachGuide() {
           <section id="steps" className="stack">
             <h2>The 8 steps</h2>
             <ol className="guide-steps">
-              <Step title="Get access">
+              <Step title="Clone the toolkit and start the studio">
+                <CopyBlock text={'git clone git@github.com:Nano-Syllabus/nano-syllabus-toolkit.git\ncd nano-syllabus-toolkit\nnpm run setup\nnpm run studio'} />
+                <p>The studio opens at <code>http://127.0.0.1:5191</code>. It works in a <code>workspace/</code> folder inside the clone and listens on your computer only.</p>
+                <pre className="guide-tree">{TREE}</pre>
+              </Step>
+
+              <Step title="Setup: your teacher key">
                 {user ? (
-                  <p>You are signed in as <b>{user.email}</b>.{teacher ? ' Your account is already a teacher.' : ' Send that email and your GitHub username to the Nano Syllabus team.'}</p>
+                  <p>You are signed in as <b>{user.email}</b>.{teacher ? '' : ' Your account needs the Teacher role first: ask an admin.'}</p>
                 ) : (
-                  <p><Link to={`/signup?next=${GUIDE}`}>Create an account</Link>, then send the email you used and your GitHub username to the Nano Syllabus team.</p>
+                  <p><Link to={`/signup?next=${GUIDE}`}>Create an account</Link> and ask an admin for the Teacher role.</p>
                 )}
-                <p>We give your account the Teacher role and invite you to the plugin's repository on GitHub. <b>Accept the invite</b> from the email GitHub sends you.</p>
+                <p>On <Link to={`${TOOLS}#tokens`}>Teacher tools → Access tokens</Link>, create a key (<code>nst_…</code>) and paste it on the studio's <b>Setup</b> page. It is checked against the site and saved in your user folder, never in the workspace. Setup also checks that Claude Code is installed.</p>
               </Step>
 
-              <Step title="Add the plugin to Claude Code">
-                <p>Open Claude Code in an empty folder for your courses and type these two lines. Restart Claude Code if it asks.</p>
-                <CopyBlock text={'/plugin marketplace add Nano-Syllabus/nano-syllabus-toolkit\n/plugin install nano-syllabus@nano-syllabus'} />
-                <p className="muted small">This gives Claude the skills that plan, write, check and push a course, our lesson kit and the <code>ns</code> toolkit.</p>
+              <Step title="Link the documents">
+                <p>On <b>Documents linked</b>, fill in the university (TU), level (Bachelor), faculty (BCT), semester and subject, then drop each document on its shelf: <b>Syllabus</b> (required), <b>Question bank</b>, <b>Notes</b> and <b>Reference books</b> (with title, author and edition).</p>
               </Step>
 
-              <Step title="Sign Claude in to your account">
-                <p>On <Link to={`${TOOLS}#tokens`}>Teacher tools → Access tokens</Link>, create a token. Copy it and tell Claude:</p>
-                <Say>Sign me in to Nano Syllabus with this token: nst_…</Say>
-                <p className="muted small">The token is saved in your user folder, never in your course files. Never share it. If it leaks, revoke it on the same page.</p>
+              <Step title="Build the syllabus graph and correct it">
+                <p><b>Build graph</b> reads the syllabus only and makes units → topics → micro-topics. Then on <b>Parsed structure</b>, fix anything it got wrong: names, numbering, hours, missing or extra micro-topics. Topics renumber themselves when you save.</p>
               </Step>
 
-              <Step title="Plan the course from your syllabus">
-                <p>Attach or paste the syllabus and ask:</p>
-                <Say>Make a Nano Syllabus course from this syllabus. It's IOE Bachelor, Electrical Machines.</Say>
-                <p>Claude proposes one subject per unit in syllabus order, with 4–10 short lessons each. <b>Check the plan and correct it.</b> Files are only created once you agree.</p>
+              <Step title="Parse, link questions, gather topic content">
+                <p><b>Parse documents</b> starts several Claude Code agents at once. They read every page (scans included) and write it out as Markdown, which you can open and fix. <b>Link questions</b> puts each past question under its topic. <b>Gather all</b> writes each topic's content file, with the source and page of every passage.</p>
               </Step>
 
-              <Step title="Write the lessons and watch them">
-                <Say>Write the lessons of Unit 1. Start the preview so I can see them.</Say>
-                <p>The preview opens at <code>http://localhost:5190</code> and runs each lesson as the site will, at phone, tablet and desktop size, in light and dark. Saving a file updates it instantly.</p>
-                <div className="guide-note">
-                  <b>Watch it like a student on a phone</b>
-                  <p className="small">Choose <b>Phone</b>, then press <b>⤢</b> on a video. It fills the screen on its side, like YouTube, and the controls fade while it plays. Tap the video to bring them back. <b>Turn sideways</b> rotates the phone at any time, and <b>Full screen</b> gives the lesson your whole window.</p>
-                </div>
-                <p>Ask for changes in plain words:</p>
-                <Say>The slider in "Back EMF" should go up to 1500 rpm, and add a second check about starting current.</Say>
+              <Step title="Make the videos">
+                <p>On <b>Video production</b>, pick a topic. Its ten steps run in order: topic content → brief → script → narration → animation → questions → review report → lesson prepare → generate audio → output. Press <b>Run every missing step</b>, or one step at a time.</p>
+                <p>Every topic plays as three segments:</p>
+                <Cards items={SEGMENTS} />
               </Step>
 
-              <Step title="Check it">
-                <Say>Check the course.</Say>
-                <p>Claude runs the same checks as the site. It fixes every <b>✗</b> (something that would break) and tells you about every <b>!</b> (a style or quality hint). Lessons marked as drafts stay out until you say they are ready.</p>
+              <Step title="Steer it with the House rules agent">
+                <p>Tell it what should change, in your own words. It edits the other agents' instructions and shows every change with <b>Diff / Keep / Revert</b>. Prefer to do it yourself? Use <b>Manual</b>, or try a prompt on one topic in <b>Experiment</b>. Then run the stages again and compare versions. <a href="#house">Examples below</a>.</p>
               </Step>
 
-              <Step title="Push it for review">
-                <Say>Push the course for review. Note: Units 1–3 are complete.</Say>
-                <p>The site checks and builds the course, usually in under a minute. Open the exact version we review from <Link to={`${TOOLS}#submissions`}>Teacher tools → Submissions</Link> → Preview.</p>
-              </Step>
-
-              <Step title="Follow the review">
-                <p>Your push moves through the statuses <a href="#review">listed below</a>. Once it is approved, the course is live. See it in <Link to={`${TOOLS}#courses`}>Your courses</Link>.</p>
+              <Step title="Watch, check and push">
+                <p>Press <b>Output</b> to play the lesson in the real player, at phone and desktop size. Then, in the toolkit folder:</p>
+                <CopyBlock text={'npm run check\nnpm run push -- computer-graphics --note "Unit 1, topics 1.1–1.4"'} />
+                <p>The site checks and builds it, usually in under a minute. Follow it on <Link to={`${TOOLS}#submissions`}>Teacher tools → Submissions</Link>; an admin reviews it there.</p>
               </Step>
             </ol>
           </section>
 
-          <section id="prompts" className="stack">
-            <h2>Things to ask Claude</h2>
-            {PROMPTS.map((p) => <Say key={p}>{p}</Say>)}
-            <p className="muted small">Have a whole syllabus PDF? Ask Claude to use the <b>nano-studio</b> skill. It captures every unit and topic, then builds each topic in stages: brief, script, narration, animation and questions.</p>
+          <section id="pages" className="stack">
+            <h2>The studio pages</h2>
+            <Cards items={PAGES} />
+          </section>
+
+          <section id="agents" className="stack">
+            <h2>The agents</h2>
+            <h3>Data preparation</h3>
+            <p>Everything before the videos happens in the studio, so each video starts from the subject's own documents.</p>
+            <Cards items={PREP} />
+            <h3>Video generation</h3>
+            <p>Each agent gets the studio rulebook and the house rules; the brief, script and questions agents also follow the Nepal exam rules.</p>
+            <Cards items={MAKERS} />
+            <h3>The review report</h3>
+            <p>Four agents read the finished topic and report what is wrong, where, and how to fix it. Anything marked <b>must fix</b> goes back to its agent once, and they read it again.</p>
+            <Cards items={REVIEWERS} />
+            <p className="muted small">See them all as a chart on the studio's <b>Pipeline</b> page.</p>
+          </section>
+
+          <section id="house" className="stack">
+            <h2>Talking to the House rules agent</h2>
+            <p>Say what should change. Mention "this topic" or "this course" to keep the change there; otherwise it applies to every course.</p>
+            {HOUSE_SAYS.map((p) => <Say key={p}>{p}</Say>)}
+            <p className="muted small">It can only change the agents' instructions in the workspace's <code>studio/</code> folder. It never runs the pipeline itself: you rerun the stages after keeping its changes.</p>
           </section>
 
           <section id="rules" className="stack">
             <h2>The rules</h2>
-            <p className="muted">Claude follows them; you check them.</p>
-            <div className="guide-need">
-              {RULES.map(([what, why]) => (
-                <div key={what}>
-                  <b>{what}</b>
-                  <span className="muted small">{why}</span>
-                </div>
-              ))}
-            </div>
-            <p className="muted small">The full rulebook is inside the plugin. Ask Claude <i>"show me the Nano Syllabus style guide"</i>. Teacher courses are free for every signed-in student for now.</p>
+            <p className="muted">The agents follow them; you check them.</p>
+            <Cards items={RULES} />
           </section>
 
           <section id="review" className="stack">
@@ -234,7 +303,7 @@ export default function TeachGuide() {
                 </tbody>
               </table>
             </div>
-            <p className="muted small">A new push of the same course replaces one still waiting, so you never need to cancel anything. Track every push on <Link to={`${TOOLS}#submissions`}>Teacher tools</Link>.</p>
+            <p className="muted small">A new push of the same course replaces one still waiting. Each approved push is a numbered version an admin can put back live.</p>
           </section>
 
           <section id="trouble" className="stack">
@@ -244,30 +313,20 @@ export default function TeachGuide() {
             </div>
           </section>
 
-          <section id="other-ai" className="stack">
-            <h2>Using another AI tool</h2>
-            <p>Any AI app that supports MCP (Model Context Protocol) can read our rules, check a course and submit it with the same access token. Add this as a remote MCP server:</p>
-            <CopyBlock text={`${location.origin}/mcp`} />
-            <p>With this header:</p>
-            <CopyBlock text="Authorization: Bearer nst_…" />
-            <p className="muted small">
-              With Claude Code you don't need this: the plugin connects it when <code>NANO_SYLLABUS_TOKEN</code> is set. Tools: <code>guide</code>, <code>list_courses</code>, <code>get_course_files</code>, <code>check_course</code>, <code>submit_course</code>, <code>submission_status</code>. Large videos are easier to send with Claude Code.
-            </p>
-          </section>
-
           <section id="faq" className="stack">
             <h2>Questions</h2>
             <div className="stack guide-faq">
               {FAQ.map(([q, a]) => <details key={q} className="card"><summary>{q}</summary><p>{a}</p></details>)}
             </div>
+            <p className="muted small">The full written guide is <code>GETTING-STARTED.md</code> in the toolkit.</p>
           </section>
 
           <div className="guide-next card">
             <div>
               <b>Ready to start?</b>
-              <p className="muted small">{teacher ? 'Create your access token, then connect Claude Code.' : 'Your first step is getting teacher access.'}</p>
+              <p className="muted small">{teacher ? 'Create your teacher key, then start the studio.' : 'First, an account with the Teacher role.'}</p>
             </div>
-            <Link className="btn btn-primary" to={user ? `${TOOLS}${teacher ? '#tokens' : ''}` : `/signup?next=${GUIDE}`}>{teacher ? 'Open teacher tools' : user ? 'Request teacher access' : 'Create an account'}</Link>
+            <Link className="btn btn-primary" to={user ? `${TOOLS}${teacher ? '#tokens' : ''}` : `/signup?next=${GUIDE}`}>{teacher ? 'Get your teacher key' : user ? 'Teacher tools' : 'Create an account'}</Link>
           </div>
         </div>
       </div>
