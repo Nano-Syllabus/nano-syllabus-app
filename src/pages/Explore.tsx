@@ -6,7 +6,7 @@
 // program lists (the free taster) sit under "Free to try".
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LEVELS, UNIVERSITIES, linkedCourses, usePrograms, type Program } from '../data/curriculum';
+import { LEVELS, UNIVERSITIES, linkedCourses, subjectCourse, usePrograms, type Program } from '../data/curriculum';
 import { api, useQuery } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { SITE, useSeo } from '../lib/seo';
@@ -156,7 +156,8 @@ export default function Explore() {
 
   // Catalogue courses no program lists, e.g. the free taster.
   const extra = useMemo(() => {
-    const linked = new Set(PROGRAMS.flatMap(linkedCourses));
+    const all = new Map((data?.courses ?? []).map((c) => [c.slug, c]));
+    const linked = new Set([...PROGRAMS.flatMap(linkedCourses), ...PROGRAMS.flatMap((p) => p.semesters.flatMap((sem) => sem.subjects.map((x) => subjectCourse(x, all)?.slug ?? '')))]);
     const term = q.trim().toLowerCase();
     return (data?.courses ?? []).filter((c) => !linked.has(c.slug) && (!term || `${c.title} ${c.tagline}`.toLowerCase().includes(term)));
   }, [data, q, PROGRAMS]);

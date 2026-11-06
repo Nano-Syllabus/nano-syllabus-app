@@ -10,7 +10,7 @@ import { useAuth } from '../lib/auth';
 import { SITE, useSeo } from '../lib/seo';
 import type { CourseCard, CourseDetail, User } from '../lib/types';
 import { Bolt } from '../ui/TopNav';
-import { usePrograms, type Semester } from '../data/curriculum';
+import { subjectCourse, usePrograms, type Semester } from '../data/curriculum';
 
 const ICONS: [RegExp, string][] = [
   [/physic|motor|machine|magnet|field|wave|electromag|antenna|propagation|microwave/i, 'ic-physics'],
@@ -145,7 +145,7 @@ function SemesterRow({ sem, courses, starred, onStar }: { sem: Semester; courses
   const { user } = useAuth();
   const admin = user?.role === 'admin';
   const tiles = sem.subjects.map((x, i) => {
-    const c = x.course ? courses.get(x.course) : undefined;
+    const c = subjectCourse(x, courses);
     const lessons = c ? c.subjects.reduce((n, s) => n + s.lessonCount, 0) : 0;
     const done = c ? c.subjects.reduce((n, s) => n + s.done, 0) : 0;
     // A course in the catalogue always opens (its path says which units are coming soon).

@@ -147,6 +147,15 @@ export const LEVELS: { id: Program['level']; label: string }[] = [
 ];
 
 /** Every course a program links to (so the page knows which ones to load). */
+const norm = (t: string) => t.toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').trim();
+/** The course that teaches a subject: the one the programme names, else a catalogue course with the
+ *  subject's name (a teacher course published as "Computer Programming" / computer-programming). */
+export function subjectCourse<C extends { slug: string; title: string }>(x: CurriculumSubject, courses: Map<string, C>): C | undefined {
+  if (x.course) return courses.get(x.course);
+  const want = norm(x.title);
+  for (const c of courses.values()) if (norm(c.title) === want || norm(c.slug) === want) return c;
+  return undefined;
+}
 export const linkedCourses = (p: Program) => p.semesters.flatMap((s) => s.subjects.flatMap((x) => (x.course ? [x.course] : [])));
 
 /** The programmes to show: the server's (pushed from the toolkit), else the
