@@ -287,7 +287,7 @@ export default function TeachGuide() {
               </Step>
 
               <Step title="Watch, check and push">
-                <p>The steps end with <b>Generate audio</b>: Kokoro on your computer, and the Nepali Kokoro voice (kokoro-ne) when the narration language is Nepali or Roman Nepali. Then, in the toolkit folder:</p>
+                <p>The steps end with <b>Generate audio</b>: two voice tracks made on your computer, English (Kokoro) and Roman Nepali (kokoro-ne). Captions stay English; viewers switch the speaker inside the video, and English is the default. Then, in the toolkit folder:</p>
                 <CopyBlock text={'npm run check\nnpm run push -- computer-graphics --note "Unit 1, topics 1.1–1.4"'} />
                 <p>The site checks and builds it, usually in under a minute. Follow it on <Link to={`${TOOLS}#submissions`}>Teacher tools → Submissions</Link>; an admin reviews it there.</p>
               </Step>
