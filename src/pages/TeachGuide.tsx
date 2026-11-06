@@ -34,10 +34,10 @@ const NEED: [string, ReactNode, ReactNode][] = [
 
 const PAGES: [string, string][] = [
   ['Setup', 'Your teacher key and the Claude Code check. The studio opens here until the key is saved.'],
-  ['Documents linked', 'University, level, faculty, semester and subject, then the four shelves of documents. Each subject shows its five steps.'],
+  ['Documents linked', 'University › institute › programme › semester › subject, and the four shelves of documents. One Prepare everything button per subject; rename, move, delete and file unsorted subjects here too.'],
   ['Parsed structure', 'The syllabus graph: units → topics → micro-topics, with the past questions linked to each. Edit anything.'],
   ['Experiment', 'Manual mode: change the house rules or one agent\'s prompt yourself, run it on a real topic, compare. Nothing is saved until you keep it.'],
-  ['Video production', 'Each topic\'s ten steps, from topic content to output, and the House rules agent (chat with Claude Code, or manual).'],
+  ['Video production', 'Each topic\'s nine steps, from topic content to generate audio, and the House rules agent (chat with Claude Code, or manual).'],
   ['Provider', 'Claude Code is the default. API providers are optional for the other agents.'],
   ['Logs', 'Every document linked, agent run (with its time and steps), change kept or reverted, and error.'],
   ['Pipeline', 'Every agent in order, read only. Click one to read what it does and the instructions it follows now.'],
@@ -102,8 +102,8 @@ const TROUBLE: [string, ReactNode][] = [
   ['A run says Claude Code is not signed in', <>Run <code>claude</code> in a terminal, log in, and press the button again.</>],
   ['The teacher key is refused', <>It may be revoked or mistyped. <Link to={`${TOOLS}#tokens`}>Create a new one</Link> and paste it on Setup.</>],
   ['There is no token section on Teacher tools', 'Your account is still a student account. Ask an admin for the Teacher role.'],
-  ['Some pages failed to parse', 'Press Parse the rest. Finished page ranges are kept; only the missing ones run again.'],
-  ['Build graph opened a draft instead', 'The checks found something in the syllabus. Fix it in the draft and apply it, then correct the rest on Parsed structure.'],
+  ['Some pages failed to parse', 'Press Prepare everything again. Finished page ranges are kept; only the missing ones run again.'],
+  ['Prepare everything opened a draft instead', 'The checks found something in the syllabus. Fix it in the draft and apply it, then press Prepare everything again: it carries on from there.'],
   ['A House rules change shows "placeholders"', 'The agent dropped a {{…}} the studio fills in. Look at the diff; revert it or ask the agent to put it back.'],
   ['A lesson says it can\'t load something', 'Lessons have no internet. The file has to be in the lesson folder or media/.'],
   ['Anything else', 'Open Logs: every failed run shows its steps and the error.'],
@@ -121,12 +121,48 @@ const FAQ: [string, ReactNode][] = [
 const TREE = `nano-syllabus-toolkit/
 └── workspace/          made by npm run studio (not in git)
     ├── sources/        your documents: never leave this computer
-    │   └── tu-bachelor-bct/semester-5/computer-graphics/
+    │   └── tu/ioe/bei/semester-3/computer-graphics/
     │       ├── syllabus/  question-bank/  notes/  reference-books/
+    ├── unsorted/       documents not filed into a programme yet
     ├── courses/        the lessons: this is what gets pushed
     ├── media/          images and video lessons use: also pushed
     ├── studio/         your changes to the agents
     └── .studio/        parsed Markdown, topic content, agent work, logs`;
+
+// The pipeline's real shape (the studio's Pipeline page): a row is one step; a row with several
+// boxes runs side by side.
+type Flow = { boxes: string[]; note?: string }[];
+const PREP_FLOW: Flow = [
+  { boxes: ['Documents linked'] },
+  { boxes: ['Syllabus agent + checker → syllabus graph', 'Parser agents (several at once, OCR) → Markdown'], note: 'side by side' },
+  { boxes: ['Question linker'], note: 'needs the graph and the parsed papers' },
+  { boxes: ['Topic content agent'] },
+];
+const VIDEO_FLOW: Flow = [
+  { boxes: ['Topic content'] },
+  { boxes: ['Brief agent'] },
+  { boxes: ['Script agent'] },
+  { boxes: ['Narration agent'] },
+  { boxes: ['Animation agent', 'Questions agent'], note: 'side by side: both need only the narration' },
+  { boxes: ['Nepali education', 'Layout', 'Accuracy', 'Content quality'], note: 'review report: four agents side by side; "must fix" goes back to its agent once' },
+  { boxes: ['Lesson prepare'] },
+  { boxes: ['Generate audio'] },
+];
+
+function FlowChart({ flow, label }: { flow: Flow; label: string }) {
+  return (
+    <ol className="guide-flow" aria-label={label}>
+      {flow.map((row, i) => (
+        <li key={i}>
+          <div className={row.boxes.length > 1 ? 'guide-flow-par' : 'guide-flow-row'}>
+            {row.boxes.map((b) => <span key={b}>{b}</span>)}
+          </div>
+          {row.note && <small className="muted">{row.note}</small>}
+        </li>
+      ))}
+    </ol>
+  );
+}
 
 function Cards({ items }: { items: [string, string][] }) {
   return (
@@ -226,19 +262,22 @@ export default function TeachGuide() {
               </Step>
 
               <Step title="Link the documents">
-                <p>On <b>Documents linked</b>, fill in the university (TU), level (Bachelor), faculty (BCT), semester and subject, then drop each document on its shelf: <b>Syllabus</b> (required), <b>Question bank</b>, <b>Notes</b> and <b>Reference books</b> (with title, author and edition).</p>
+                <p>On <b>Documents linked</b>, type the university, institute and programme, each as a short and a full name (TU · Tribhuvan University, IOE · Institute of Engineering, BEI · Bachelor in Electronics, Communication and Information Engineering), then the level, semester and subject. Drop each document on its shelf: <b>Syllabus</b> (required), <b>Question bank</b>, <b>Notes</b> and <b>Reference books</b> (with title, author and edition).</p>
+                <p>Everything can be edited from that page: rename a university, institute or programme, move a subject to another semester, or delete. Subjects in <code>unsorted/</code> show under <b>Not filed yet</b>; <b>File</b> puts one into a programme.</p>
               </Step>
 
-              <Step title="Build the syllabus graph and correct it">
-                <p><b>Build graph</b> reads the syllabus only and makes units → topics → micro-topics. Then on <b>Parsed structure</b>, fix anything it got wrong: names, numbering, hours, missing or extra micro-topics. Topics renumber themselves when you save.</p>
+              <Step title="Prepare everything: one button per subject">
+                <p>Press <b>Prepare everything</b> on the subject. In one go, the syllabus agent builds the graph (units → topics → micro-topics, from the syllabus only) while Claude Code parser agents read every page of the other documents (scans included) into Markdown. Then each past question is linked to its topic, and each topic's content file is gathered, with the source and page of every passage. Steps already done are skipped, so pressing it again only finishes what is missing.</p>
+                <FlowChart flow={PREP_FLOW} label="Data preparation" />
               </Step>
 
-              <Step title="Parse, link questions, gather topic content">
-                <p><b>Parse documents</b> starts several Claude Code agents at once. They read every page (scans included) and write it out as Markdown, which you can open and fix. <b>Link questions</b> puts each past question under its topic. <b>Gather all</b> writes each topic's content file, with the source and page of every passage.</p>
+              <Step title="Correct the structure">
+                <p>On <b>Parsed structure</b>, fix anything the graph got wrong: names, numbering, hours, missing or extra micro-topics. Topics renumber themselves when you save. Parsed Markdown opens from the subject's document list, to fix OCR mistakes.</p>
               </Step>
 
               <Step title="Make the videos">
-                <p>On <b>Video production</b>, pick a topic. Its ten steps run in order: topic content → brief → script → narration → animation → questions → review report → lesson prepare → generate audio → output. Press <b>Run every missing step</b>, or one step at a time.</p>
+                <p>On <b>Video production</b>, pick a topic and press <b>Run every missing step</b>, or run the steps one at a time. They follow the pipeline: a step starts once the steps it needs are done, and steps that don't need each other run side by side.</p>
+                <FlowChart flow={VIDEO_FLOW} label="Video generation" />
                 <p>Every topic plays as three segments:</p>
                 <Cards items={SEGMENTS} />
               </Step>
@@ -248,7 +287,7 @@ export default function TeachGuide() {
               </Step>
 
               <Step title="Watch, check and push">
-                <p>Press <b>Output</b> to play the lesson in the real player, at phone and desktop size. Then, in the toolkit folder:</p>
+                <p>The steps end with <b>Generate audio</b>: Kokoro on your computer, and the Nepali Kokoro voice (kokoro-ne) when the narration language is Nepali or Roman Nepali. Then, in the toolkit folder:</p>
                 <CopyBlock text={'npm run check\nnpm run push -- computer-graphics --note "Unit 1, topics 1.1–1.4"'} />
                 <p>The site checks and builds it, usually in under a minute. Follow it on <Link to={`${TOOLS}#submissions`}>Teacher tools → Submissions</Link>; an admin reviews it there.</p>
               </Step>

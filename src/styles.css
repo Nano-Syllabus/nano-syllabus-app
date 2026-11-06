@@ -211,6 +211,13 @@ a.list-item:hover { background: var(--bg-soft); }
 .guide-say .code pre { border-left: 3px solid var(--primary); font-family: inherit; font-size: 0.95rem; }
 .guide-tree { margin: 0; padding: 14px 16px; overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-soft); font-size: 0.82rem; line-height: 1.5; }
 .guide-body h3 { margin: 8px 0 0; }
+.guide-flow { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.guide-flow > li { display: grid; justify-items: center; gap: 4px; text-align: center; min-width: 0; }
+.guide-flow > li + li::before { content: '↓'; color: var(--muted); font-size: 0.9rem; line-height: 1.4; }
+.guide-flow-row, .guide-flow-par { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; max-width: 100%; }
+.guide-flow-par { padding: 6px; border: 1px dashed var(--border); border-radius: 12px; }
+.guide-flow span { padding: 6px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-soft); font-size: 0.88rem; min-width: 0; overflow-wrap: anywhere; }
+.guide-flow small { max-width: 36rem; font-size: 0.78rem; }
 .guide-note { padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-soft); }
 .guide-note p { margin-top: 4px; }
 .guide-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
