@@ -50,15 +50,15 @@ function TeacherHome() {
       {error && <ErrorBox message={error.message} retry={() => location.reload()} />}
 
       <section className="card stack">
-        <h2>Start the studio</h2>
-        <p className="muted">Once per computer. The studio turns a subject's documents into video lessons with Claude Code, then pushes the course here for review.</p>
+        <h2>Open the studio</h2>
+        <p className="muted">The studio turns a subject's documents into video lessons, then pushes the course here for review. Admins only.</p>
         <ol className="stack" style={{ paddingLeft: 20, margin: 0 }}>
+          <li>In the browser: <a href="https://studio.nanosyllabus.com" target="_blank" rel="noopener noreferrer">studio.nanosyllabus.com</a>, signed in with this account. Documents, experiments and every output are kept there.</li>
           <li>
-            Clone the toolkit (team access needed) and start it:
-            <CopyBlock text={'git clone git@github.com:Nano-Syllabus/nano-syllabus-toolkit.git\ncd nano-syllabus-toolkit\nnpm run setup\nnpm run studio'} />
+            To generate on your own Claude Code subscription (no API key), run it on your computer; the data stays on the studio server:
+            <CopyBlock text={'git clone git@github.com:Nano-Syllabus/nano-syllabus-toolkit.git\ncd nano-syllabus-toolkit\nnpm run setup\nnpm run login -- nst_…\nnpm run studio:remote'} />
+            Create the key below. <Link to="/app/teacher/guide#ways">The guide</Link> explains both ways.
           </li>
-          <li>Create a teacher key below and paste it on the studio's <b>Setup</b> page.</li>
-          <li>Link the subject's documents on <b>Documents linked</b>. <Link to="/app/teacher/guide#steps">The guide</Link> walks through the rest.</li>
         </ol>
       </section>
 
@@ -159,7 +159,7 @@ function Tokens({ tokens, site }: { tokens?: ApiToken[]; site: string }) {
         <div className="alert alert-success stack">
           <b>Copy this token now. It is not shown again.</b>
           <CopyBlock text={fresh} />
-          <span className="small">Paste it on the studio's <b>Setup</b> page{site.includes('live.nanosyllabus.com') ? '' : <> with the server <code>{site}</code></>}.</span>
+          <span className="small">Give it to the local studio with <code>npm run login -- nst_…</code>{site.includes('live.nanosyllabus.com') ? '' : <> with the server <code>{site}</code></>}.</span>
         </div>
       )}
       <div className="row" style={{ flexWrap: 'wrap' }}>

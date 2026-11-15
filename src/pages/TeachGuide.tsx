@@ -1,4 +1,4 @@
-// /app/teacher/guide: the in-house guide (2026-11-06), from a clone of the toolkit to a
+// /app/teacher/guide: the in-house guide (2026-11-06; two ways in + teaching styles 2026-11-15), from a clone of the toolkit to a
 // live course. The toolkit is used by the Nano Syllabus team, not installed by outside
 // teachers: clone it, run the studio, and make courses there. Public on purpose (it
 // explains the flow); /teach and /app/teach/guide redirect here.
@@ -14,8 +14,10 @@ const TOOLS = '/app/teach';
 
 const SECTIONS = [
   ['need', 'What you need'],
+  ['ways', 'Two ways to open the studio'],
   ['steps', 'The 8 steps'],
   ['pages', 'The studio pages'],
+  ['styles', 'Experiment and teaching styles'],
   ['agents', 'The agents'],
   ['house', 'Talking to the House rules agent'],
   ['rules', 'The rules'],
@@ -25,22 +27,28 @@ const SECTIONS = [
 ] as const;
 
 const NEED: [string, ReactNode, ReactNode][] = [
-  ['Team access', 'The toolkit repository is private, for the Nano Syllabus team. Ask to be added on GitHub.', null],
-  ['Nano Syllabus account', 'With the Teacher role, for the key that pushes courses. An admin gives the role.', <Link key="a" to={`/signup?next=${GUIDE}`}>Create an account</Link>],
-  ['Claude Code', 'Logged in once on your computer. The studio runs it for you: it reads, parses and writes. No API key.', <a key="c" href="https://claude.com/claude-code" target="_blank" rel="noopener noreferrer">Install Claude Code</a>],
-  ['Node.js 20 and Git', 'The studio runs on Node. Git clones the toolkit.', <a key="d" href="https://nodejs.org" target="_blank" rel="noopener noreferrer">Install Node.js</a>],
+  ['Admin account', 'The studio is for the Nano Syllabus team: only admins of this site can open it. An admin gives the role.', <Link key="a" to={`/signup?next=${GUIDE}`}>Create an account</Link>],
+  ['A browser', 'Enough for the web studio at studio.nanosyllabus.com: documents, structure, experiments and every stage output are kept there.', null],
+  ['Claude Code (to generate)', 'To run the agents on your own Claude subscription instead of an API key: logged in once on your computer.', <a key="c" href="https://claude.com/claude-code" target="_blank" rel="noopener noreferrer">Install Claude Code</a>],
+  ['Node.js 20, Git, team access', 'Only for the local studio: Node runs it, Git clones the private toolkit repository (ask to be added on GitHub).', <a key="d" href="https://nodejs.org" target="_blank" rel="noopener noreferrer">Install Node.js</a>],
   ['The subject\'s documents', 'Syllabus, past questions, notes and reference books. PDFs (scanned is fine), photos or text.', null],
 ];
 
 const PAGES: [string, string][] = [
-  ['Setup', 'Your teacher key and the Claude Code check. The studio opens here until the key is saved.'],
-  ['Documents linked', 'University › institute › programme › semester › subject, and the four shelves of documents. One Prepare everything button per subject; rename, move, delete and file unsorted subjects here too.'],
-  ['Parsed structure', 'The syllabus graph: units → topics → micro-topics, with the past questions linked to each. Edit anything.'],
-  ['Experiment', 'Manual mode: change the house rules or one agent\'s prompt yourself, run it on a real topic, compare. Nothing is saved until you keep it.'],
-  ['Video production', 'Each topic\'s nine steps, from topic content to generate audio, and the House rules agent (chat with Claude Code, or manual).'],
+  ['Experiment', 'The first page. Pick a micro-topic, branch the audio and visual pipelines with your own rules, generate, compare side by side, and save what works as a teaching style.'],
+  ['Video Production', 'Each topic\'s steps, from topic content to generate audio, with the subject\'s teaching style picker and the House rules agent.'],
+  ['Subjects', 'University › institute › programme › semester › subject, and the four shelves of documents. One Prepare everything button per subject; rename, move, delete and file unsorted subjects here too.'],
+  ['Syllabus', 'The syllabus graph: units → topics → micro-topics, with the past questions linked to each. Edit anything.'],
+  ['Site Settings', 'Your key and the Claude Code check (local studio). The web studio signs you in with your site account instead.'],
   ['Provider', 'Claude Code is the default. API providers are optional for the other agents.'],
-  ['Logs', 'Every document linked, agent run (with its time and steps), change kept or reverted, and error.'],
-  ['Pipeline', 'Every agent in order, read only. Click one to read what it does and the instructions it follows now.'],
+  ['Rules & Prompts', 'House rules, guidance and every agent\'s prompt, to read or edit by hand.'],
+  ['Logs', 'Every document linked, agent run (with its time and steps), change kept or reverted, and error, with who did it.'],
+  ['Pipeline Visualizer', 'Every agent in order, and the list of teaching styles: status, what each is based on, which subjects use it.'],
+];
+
+const WAYS: [string, string][] = [
+  ['Web studio: studio.nanosyllabus.com', 'Sign in with your site account (admins only). Link documents, fix the structure, run experiments and read every output from any browser. All files, parsed pages, indexes and topic content live on the studio server, never on the live site; only courses you push and an admin approves reach it. Generating there uses the studio server\'s own Claude Code login once an admin sets it up; until then, generate from the local studio.'],
+  ['Local studio, data on the server', 'The studio runs on your computer and every agent runs on your own Claude Code subscription: no API key, no per-token bill. It keeps a mirror of the studio server\'s workspace: uploads and each stage\'s output are sent up the moment they are written, and others\' changes come down every few seconds. If two people change one file, both versions are kept.'],
 ];
 
 const PREP: [string, string][] = [
@@ -98,9 +106,9 @@ const STATUSES: [string, string, string, string][] = [
 ];
 
 const TROUBLE: [string, ReactNode][] = [
-  ['Setup says Claude Code was not found', <>Install Claude Code, run <code>claude</code> once in a terminal and log in, then reload the studio.</>],
+  ['Site Settings says Claude Code was not found', <>Install Claude Code, run <code>claude</code> once in a terminal and log in, then reload the studio.</>],
   ['A run says Claude Code is not signed in', <>Run <code>claude</code> in a terminal, log in, and press the button again.</>],
-  ['The teacher key is refused', <>It may be revoked or mistyped. <Link to={`${TOOLS}#tokens`}>Create a new one</Link> and paste it on Setup.</>],
+  ['The teacher key is refused', <>It may be revoked or mistyped. <Link to={`${TOOLS}#tokens`}>Create a new one</Link> and run <code>npm run login -- nst_…</code> again.</>],
   ['There is no token section on Teacher tools', 'Your account is still a student account. Ask an admin for the Teacher role.'],
   ['Some pages failed to parse', 'Press Prepare everything again. Finished page ranges are kept; only the missing ones run again.'],
   ['Prepare everything opened a draft instead', 'The checks found something in the syllabus. Fix it in the draft and apply it, then press Prepare everything again: it carries on from there.'],
@@ -114,26 +122,25 @@ const FAQ: [string, ReactNode][] = [
   ['Does it cost anything per lesson?', 'The studio uses your own Claude Code login, so it counts against your Claude plan. Logs shows how many AI calls each step made.'],
   ['Is this RAG?', 'No. Claude Code agents read every page and turn it into Markdown first; the topic content agent then searches that text and cites the pages.'],
   ['Does it make MP4 files?', 'No. A lesson is drawn live in the player with captions and an optional voice, which is what students see on the site.'],
-  ['Where do my documents go?', <>Into <code>workspace/sources/</code> in your clone of the toolkit. They are never pushed or uploaded anywhere.</>],
-  ['How do I get toolkit updates?', <>Run <code>git pull</code> in the toolkit folder, then <code>npm run setup</code> if the packages changed.</>],
+  ['Where do my documents go?', <>Into <code>workspace/sources/</code> on the studio server (studio.nanosyllabus.com), which only the team's admins can open. The local studio keeps a mirror and sends every new file there. They never reach the live site: a push carries only lessons and their media.</>],
+  ['How do I get toolkit updates?', <>The web studio is updated for you. For the local studio, run <code>git pull</code> in the toolkit folder, then <code>npm run setup</code> if the packages changed.</>],
 ];
 
-const TREE = `nano-syllabus-toolkit/
-└── workspace/          made by npm run studio (not in git)
-    ├── sources/        your documents: never leave this computer
+const TREE = `workspace/              on the studio server (your computer keeps a mirror)
+    ├── sources/        the documents: never reach the live site
     │   └── tu/ioe/bei/semester-3/computer-graphics/
     │       ├── syllabus/  question-bank/  notes/  reference-books/
     ├── unsorted/       documents not filed into a programme yet
     ├── courses/        the lessons: this is what gets pushed
     ├── media/          images and video lessons use: also pushed
-    ├── studio/         your changes to the agents
+    ├── studio/         your changes to the agents, teaching styles
     └── .studio/        parsed Markdown, topic content, agent work, logs`;
 
 // The pipeline's real shape (the studio's Pipeline page): a row is one step; a row with several
 // boxes runs side by side.
 type Flow = { boxes: string[]; note?: string }[];
 const PREP_FLOW: Flow = [
-  { boxes: ['Documents linked'] },
+  { boxes: ['Subjects'] },
   { boxes: ['Syllabus agent + checker → syllabus graph', 'Parser agents (several at once, OCR) → Markdown'], note: 'side by side' },
   { boxes: ['Question linker'], note: 'needs the graph and the parsed papers' },
   { boxes: ['Topic content agent'] },
@@ -243,26 +250,34 @@ export default function TeachGuide() {
             </div>
           </section>
 
+          <section id="ways" className="stack">
+            <h2>Two ways to open the studio</h2>
+            <p>Both work on the same workspace, so you can start a subject in the browser and generate it from your computer.</p>
+            <Cards items={WAYS} />
+            <p>The local studio, once per computer (use an admin's <code>nst_…</code> key from <Link to={`${TOOLS}#tokens`}>Teacher tools</Link>):</p>
+            <CopyBlock text={'git clone git@github.com:Nano-Syllabus/nano-syllabus-toolkit.git\ncd nano-syllabus-toolkit\nnpm run setup\nnpm run login -- nst_…\nnpm run studio:remote'} />
+            <p className="muted small">It opens at <code>http://127.0.0.1:5191</code>; the badge at the top shows the sync (“Synced”, “Uploading 3”…). The mirror lives in <code>~/.cache/nano-syllabus/remote/</code> and Ctrl+C waits for the last uploads. <code>npm run studio</code> still runs a studio on a folder of your own, with nothing sent anywhere.</p>
+          </section>
+
           <section id="steps" className="stack">
             <h2>The 8 steps</h2>
             <ol className="guide-steps">
-              <Step title="Clone the toolkit and start the studio">
-                <CopyBlock text={'git clone git@github.com:Nano-Syllabus/nano-syllabus-toolkit.git\ncd nano-syllabus-toolkit\nnpm run setup\nnpm run studio'} />
-                <p>The studio opens at <code>http://127.0.0.1:5191</code>. It works in a <code>workspace/</code> folder inside the clone and listens on your computer only.</p>
+              <Step title="Open the studio">
+                <p>In the browser at <a href="https://studio.nanosyllabus.com" target="_blank" rel="noopener noreferrer">studio.nanosyllabus.com</a>, or on your computer with <code>npm run studio:remote</code> to generate on your Claude Code subscription (<a href="#ways">both ways</a>). The workspace looks like this:</p>
                 <pre className="guide-tree">{TREE}</pre>
               </Step>
 
-              <Step title="Setup: your teacher key">
+              <Step title="Your key">
                 {user ? (
                   <p>You are signed in as <b>{user.email}</b>.{teacher ? '' : ' Your account needs the Teacher role first: ask an admin.'}</p>
                 ) : (
                   <p><Link to={`/signup?next=${GUIDE}`}>Create an account</Link> and ask an admin for the Teacher role.</p>
                 )}
-                <p>On <Link to={`${TOOLS}#tokens`}>Teacher tools → Access tokens</Link>, create a key (<code>nst_…</code>) and paste it on the studio's <b>Setup</b> page. It is checked against the site and saved in your user folder, never in the workspace. Setup also checks that Claude Code is installed.</p>
+                <p>On <Link to={`${TOOLS}#tokens`}>Teacher tools → Access tokens</Link>, create a key (<code>nst_…</code>) and give it to the local studio (<code>npm run login -- nst_…</code>, or paste it on <b>Site Settings</b>). It is checked against the site and saved in your user folder, never in the workspace. The web studio needs no key: you sign in with your account.</p>
               </Step>
 
               <Step title="Link the documents">
-                <p>On <b>Documents linked</b>, type the university, institute and programme, each as a short and a full name (TU · Tribhuvan University, IOE · Institute of Engineering, BEI · Bachelor in Electronics, Communication and Information Engineering), then the level, semester and subject. Drop each document on its shelf: <b>Syllabus</b> (required), <b>Question bank</b>, <b>Notes</b> and <b>Reference books</b> (with title, author and edition).</p>
+                <p>On <b>Subjects</b>, type the university, institute and programme, each as a short and a full name (TU · Tribhuvan University, IOE · Institute of Engineering, BEI · Bachelor in Electronics, Communication and Information Engineering), then the level, semester and subject. Drop each document on its shelf: <b>Syllabus</b> (required), <b>Question bank</b>, <b>Notes</b> and <b>Reference books</b> (with title, author and edition).</p>
                 <p>Everything can be edited from that page: rename a university, institute or programme, move a subject to another semester, or delete. Subjects in <code>unsorted/</code> show under <b>Not filed yet</b>; <b>File</b> puts one into a programme.</p>
               </Step>
 
@@ -272,11 +287,11 @@ export default function TeachGuide() {
               </Step>
 
               <Step title="Correct the structure">
-                <p>On <b>Parsed structure</b>, fix anything the graph got wrong: names, numbering, hours, missing or extra micro-topics. Topics renumber themselves when you save. Parsed Markdown opens from the subject's document list, to fix OCR mistakes.</p>
+                <p>On <b>Syllabus</b>, fix anything the graph got wrong: names, numbering, hours, missing or extra micro-topics. Topics renumber themselves when you save. Parsed Markdown opens from the subject's document list, to fix OCR mistakes.</p>
               </Step>
 
               <Step title="Make the videos">
-                <p>On <b>Video production</b>, pick a topic and press <b>Run every missing step</b>, or run the steps one at a time. They follow the pipeline: a step starts once the steps it needs are done, and steps that don't need each other run side by side.</p>
+                <p>On <b>Video Production</b>, pick the subject's <b>teaching style</b> (or leave the default), then a topic, and and press <b>Run every missing step</b>, or run the steps one at a time. They follow the pipeline: a step starts once the steps it needs are done, and steps that don't need each other run side by side.</p>
                 <FlowChart flow={VIDEO_FLOW} label="Video generation" />
                 <p>Every topic plays as three segments:</p>
                 <Cards items={SEGMENTS} />
@@ -297,6 +312,12 @@ export default function TeachGuide() {
           <section id="pages" className="stack">
             <h2>The studio pages</h2>
             <Cards items={PAGES} />
+          </section>
+
+          <section id="styles" className="stack">
+            <h2>Experiment and teaching styles</h2>
+            <p>Experiment is where a better way of teaching is found before it touches a real course. Pick a university, programme, subject and micro-topic. The <b>audio pipeline</b> (script, narration) and <b>visual pipeline</b> (animation, questions) start from the topic's saved version. <b>+ Add instance</b> branches from any node with one more rule (“open with a Nepali example”, “fewer words on the board”), or its own copy of an agent's prompt; rules stack down a branch, in order. <b>Generate</b> runs it for real but saves nothing; <b>Compare</b> lays every result side by side with the changes marked.</p>
+            <p>When a branch is better, <b>Save as teaching style</b> names it after the audience it teaches (<i>Engineering V1</i>, <i>Engineering V2</i>, <i>K12 V1</i>), based on the style it started from, with a note on what it changes. A new style is a <b>draft</b>; it becomes <b>active</b> when a subject uses it. Pick it per subject on Video Production; Pipeline Visualizer lists every style with its base, status, runs and the subjects using it, and makes one the default for every subject, renames or archives it. Each video version remembers the style that made it, so nothing is lost when you change your mind.</p>
           </section>
 
           <section id="agents" className="stack">
