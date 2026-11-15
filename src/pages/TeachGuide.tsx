@@ -47,7 +47,7 @@ const PAGES: [string, string][] = [
 ];
 
 const WAYS: [string, string][] = [
-  ['Web studio: studio.nanosyllabus.com', 'Sign in with your site account (admins only). Link documents, fix the structure, run experiments and read every output from any browser. All files, parsed pages, indexes and topic content live on the studio server, never on the live site; only courses you push and an admin approves reach it. Generating there uses the studio server\'s own Claude Code login once an admin sets it up; until then, generate from the local studio.'],
+  ['Web studio: studio.nanosyllabus.com', 'Sign in with your site account (admins only). Link documents, fix the structure, run experiments and read every output from any browser. All files, parsed pages, indexes and topic content live on the studio server, never on the live site; only courses you push and an admin approves reach it. The AI work runs on your own computer: leave npm run runner open there and every Generate, Prepare everything or Experiment you press uses your Claude Code subscription. The sidebar shows “Runs on your PC”.'],
   ['Local studio, data on the server', 'The studio runs on your computer and every agent runs on your own Claude Code subscription: no API key, no per-token bill. It keeps a mirror of the studio server\'s workspace: uploads and each stage\'s output are sent up the moment they are written, and others\' changes come down every few seconds. If two people change one file, both versions are kept.'],
 ];
 
@@ -254,7 +254,9 @@ export default function TeachGuide() {
             <h2>Two ways to open the studio</h2>
             <p>Both work on the same workspace, so you can start a subject in the browser and generate it from your computer.</p>
             <Cards items={WAYS} />
-            <p>The local studio, once per computer (use an admin's <code>nst_…</code> key from <Link to={`${TOOLS}#tokens`}>Teacher tools</Link>):</p>
+            <p>The runner for the web studio, once per computer (use an admin's <code>nst_…</code> key from <Link to={`${TOOLS}#tokens`}>Teacher tools</Link>), then leave it open:</p>
+            <CopyBlock text={'git clone git@github.com:Nano-Syllabus/nano-syllabus-toolkit.git\ncd nano-syllabus-toolkit\nnpm run setup\nnpm run login -- nst_…\nnpm run runner'} />
+            <p className="muted small">No SSH and no open port: it only calls studio.nanosyllabus.com over HTTPS, keeps a copy of the workspace in <code>~/.cache/nano-syllabus/runner/</code>, and only takes the jobs you start. Prefer the whole studio on your computer? The local studio:</p>
             <CopyBlock text={'git clone git@github.com:Nano-Syllabus/nano-syllabus-toolkit.git\ncd nano-syllabus-toolkit\nnpm run setup\nnpm run login -- nst_…\nnpm run studio:remote'} />
             <p className="muted small">It opens at <code>http://127.0.0.1:5191</code>; the badge at the top shows the sync (“Synced”, “Uploading 3”…). The mirror lives in <code>~/.cache/nano-syllabus/remote/</code> and Ctrl+C waits for the last uploads. <code>npm run studio</code> still runs a studio on a folder of your own, with nothing sent anywhere.</p>
           </section>

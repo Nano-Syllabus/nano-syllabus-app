@@ -55,8 +55,8 @@ function TeacherHome() {
         <ol className="stack" style={{ paddingLeft: 20, margin: 0 }}>
           <li>In the browser: <a href="https://studio.nanosyllabus.com" target="_blank" rel="noopener noreferrer">studio.nanosyllabus.com</a>, signed in with this account. Documents, experiments and every output are kept there.</li>
           <li>
-            To generate on your own Claude Code subscription (no API key), run it on your computer; the data stays on the studio server:
-            <CopyBlock text={'git clone git@github.com:Nano-Syllabus/nano-syllabus-toolkit.git\ncd nano-syllabus-toolkit\nnpm run setup\nnpm run login -- nst_…\nnpm run studio:remote'} />
+            Its AI runs on your own Claude Code subscription (no API key): start the runner on your computer and leave it open.
+            <CopyBlock text={'git clone git@github.com:Nano-Syllabus/nano-syllabus-toolkit.git\ncd nano-syllabus-toolkit\nnpm run setup\nnpm run login -- nst_…\nnpm run runner'} />
             Create the key below. <Link to="/app/teacher/guide#ways">The guide</Link> explains both ways.
           </li>
         </ol>
