@@ -234,7 +234,7 @@ export default function Explore() {
     setApplied({ uni: null, level: null });
   };
 
-  const filterPanel = () => (
+  const renderFilters = () => (
     <>
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-3 text-lg font-semibold text-[#0f1713] dark:text-white">
@@ -315,7 +315,7 @@ export default function Explore() {
               <span className="text-sm text-[#6d7470] dark:text-[#a3a3a3]">{[applied.uni, applied.level].filter(Boolean).join(' · ') || 'All'}</span>
             </div>
             <div className={(filtersOpen ? 'mt-5 block' : 'hidden') + ' lg:mt-0 lg:block'}>
-              {filterPanel()}
+              {renderFilters()}
             </div>
           </aside>
 
@@ -352,7 +352,7 @@ export default function Explore() {
 
             {filtersOpen ? (
               <div id="explore-mobile-filters" className="mt-[14px] hidden rounded-[16px] border border-[#e0e8f9] bg-white p-4 shadow-[0_3px_8px_rgba(80,124,208,0.04)] max-sm:block">
-                {filterPanel()}
+                {renderFilters()}
               </div>
             ) : null}
 
