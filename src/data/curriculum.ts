@@ -9,7 +9,8 @@
 
 import { useQuery } from '../lib/api';
 
-export type CurriculumSubject = { code: string; title: string; course?: string };
+/** icon: set in the studio (a stock name like "ic-code", or an SVG data URL); none = guessed from the title. */
+export type CurriculumSubject = { code: string; title: string; course?: string; icon?: string };
 export type Semester = { no: number; part: string; subjects: CurriculumSubject[] };
 export type Program = {
   slug: string;

@@ -23,7 +23,10 @@ const ICONS: [RegExp, string][] = [
 ];
 const ROTATE = ['ic-physics', 'ic-code', 'ic-math', 'ic-logic', 'ic-oop', 'ic-chip', 'ic-sigma'];
 
-export function subjectIcon(title: string, i: number) {
+/** `icon` = what the studio chose (Edit subject → Icon): a stock name or an SVG data URL; else guessed from the title. */
+export function subjectIcon(title: string, i: number, icon?: string) {
+  if (icon && /^ic-[a-z]+$/.test(icon)) return `/app/${icon}.webp`;
+  if (icon && icon.startsWith('data:image/svg+xml;base64,')) return icon;
   for (const [re, name] of ICONS) if (re.test(title)) return `/app/${name}.webp`;
   return `/app/${ROTATE[i % ROTATE.length]}.webp`;
 }
@@ -169,7 +172,7 @@ function SemesterRow({ sem, courses, starred, onStar }: { sem: Semester; courses
       </div>
       <Tray>
         {tiles.map((t) => (
-          <Tile key={t.x.code} title={t.x.title} hint={t.x.code} icon={subjectIcon(t.x.title, t.i)} state={t.state} to={t.to} pct={t.pct} started={t.started} />
+          <Tile key={t.x.code} title={t.x.title} hint={t.x.code} icon={subjectIcon(t.x.title, t.i, t.x.icon)} state={t.state} to={t.to} pct={t.pct} started={t.started} />
         ))}
       </Tray>
     </section>
