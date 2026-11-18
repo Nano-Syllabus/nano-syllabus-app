@@ -16,6 +16,8 @@ export type Program = {
   short: string;
   name: string;
   university: string;
+  /** Shown on the card, e.g. "IOST, Tribhuvan University" (the toolkit fills it from the workspace). */
+  place?: string;
   level: 'Bachelor' | 'Master' | 'Diploma' | string;
   years: number;
   icon?: 'chip' | 'code' | string;
@@ -144,7 +146,18 @@ export const LEVELS: { id: Program['level']; label: string }[] = [
   { id: 'Bachelor', label: 'Bachelor (BE/BSc)' },
   { id: 'Master', label: 'Master (MSc)' },
   { id: 'Diploma', label: 'Diploma' },
+  { id: 'License', label: 'License exam' },
 ];
+/** The filter lists: the fixed ones plus whatever the programmes name (a new university or level shows up by itself). */
+export function filterOptions(programs: Program[]) {
+  const named = UNIVERSITIES.filter((u) => u !== 'Other Universities');
+  const extraUnis = [...new Set(programs.map((p) => p.university).filter((u) => u && !UNIVERSITIES.includes(u)))];
+  const levels = [...LEVELS, ...[...new Set(programs.map((p) => p.level).filter((l) => l && !LEVELS.some((x) => x.id === l)))].map((l) => ({ id: l, label: l }))];
+  return { universities: [...named, ...extraUnis, 'Other Universities'], levels };
+}
+/** "Other Universities" matches every programme whose university isn't one of the named ones. */
+export const matchesUniversity = (p: Program, uni: string, universities: string[]) =>
+  uni === 'Other Universities' ? !universities.includes(p.university) || p.university === uni : p.university === uni;
 
 /** Every course a program links to (so the page knows which ones to load). */
 const norm = (t: string) => t.toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').trim();

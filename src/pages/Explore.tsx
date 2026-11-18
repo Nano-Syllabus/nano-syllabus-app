@@ -6,7 +6,7 @@
 // program lists (the free taster) sit under "Free to try".
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LEVELS, UNIVERSITIES, linkedCourses, subjectCourse, usePrograms, type Program } from '../data/curriculum';
+import { filterOptions, linkedCourses, matchesUniversity, subjectCourse, usePrograms, type Program } from '../data/curriculum';
 import { api, useQuery } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { SITE, useSeo } from '../lib/seo';
@@ -109,7 +109,7 @@ function Card({ title, subtitle, place, chips, icon, to, soon, onPick }: { title
   );
 }
 
-const placeOf = (p: Program) => (p.university === 'IOE' ? 'IOE, Tribhuvan University' : p.university);
+const placeOf = (p: Program) => p.place || (p.university === 'IOE' ? 'IOE, Tribhuvan University' : p.university);
 
 export default function Explore() {
   useSeo({ title: `Explore courses · ${SITE}`, description: 'Pick your program and study it semester by semester with short interactive video lessons.', path: '/courses' });
@@ -124,9 +124,11 @@ export default function Explore() {
   };
   const { data } = useQuery<{ courses: CourseCard[] }>('courses', '/api/courses');
   const [q, setQ] = useState('');
-  const [uni, setUni] = useState<string | null>('IOE');
-  const [level, setLevel] = useState<string | null>('Bachelor');
-  const [applied, setApplied] = useState<{ uni: string | null; level: string | null }>({ uni: 'IOE', level: 'Bachelor' });
+  // Every programme shows until a filter is applied (2026-11-18: more than IOE Bachelor now).
+  const [uni, setUni] = useState<string | null>(null);
+  const [level, setLevel] = useState<string | null>(null);
+  const [applied, setApplied] = useState<{ uni: string | null; level: string | null }>({ uni: null, level: null });
+  const { universities: UNIVERSITIES, levels: LEVELS } = useMemo(() => filterOptions(PROGRAMS), [PROGRAMS]);
   const [sort, setSort] = useState<'popular' | 'name'>('popular');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const search = useRef<HTMLInputElement>(null);
@@ -147,12 +149,12 @@ export default function Explore() {
     const term = q.trim().toLowerCase();
     const list = PROGRAMS.filter(
       (p) =>
-        (!applied.uni || p.university === applied.uni) &&
+        (!applied.uni || matchesUniversity(p, applied.uni, UNIVERSITIES.filter((u) => u !== 'Other Universities'))) &&
         (!applied.level || p.level === applied.level) &&
         (!term || `${p.short} ${p.name} ${p.university}`.toLowerCase().includes(term)),
     );
     return list.sort((a, b) => (sort === 'name' ? a.short.localeCompare(b.short) : Number(!!a.soon) - Number(!!b.soon)));
-  }, [q, applied, sort, PROGRAMS]);
+  }, [q, applied, sort, PROGRAMS, UNIVERSITIES]);
 
   // Catalogue courses no program lists, e.g. the free taster.
   const extra = useMemo(() => {
@@ -270,7 +272,7 @@ export default function Explore() {
                     title={p.short}
                     subtitle={p.name}
                     place={placeOf(p)}
-                    chips={[p.level, `${p.years} Years`]}
+                    chips={[p.level, p.years ? `${p.years} ${p.years === 1 ? 'Year' : 'Years'}` : ''].filter(Boolean)}
                     icon={p.icon === 'chip' ? <ChipIcon /> : <CodeIcon />}
                     to={p.soon ? undefined : user ? `/app/topics/${p.slug}` : `/signup?next=${encodeURIComponent(`/app/topics/${p.slug}`)}`}
                     soon={p.soon}
@@ -281,7 +283,7 @@ export default function Explore() {
             ) : (
               <div className="mt-5 rounded-[22px] border border-dashed border-[#d6dad8] px-6 py-14 text-center dark:border-[#2c2c2c]">
                 <p className="text-lg font-semibold text-[#0f1713] dark:text-white">Coming soon</p>
-                <p className="mt-2 text-sm text-[#6d7470] dark:text-[#a3a3a3]">We're starting with IOE Bachelor programs. Others are on the way.</p>
+                <p className="mt-2 text-sm text-[#6d7470] dark:text-[#a3a3a3]">No programme matches these filters yet. Reset them to see every programme.</p>
               </div>
             )}
 
