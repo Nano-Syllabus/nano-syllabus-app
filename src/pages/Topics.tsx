@@ -158,21 +158,24 @@ function SemesterRow({ sem, courses, starred, onStar }: { sem: Semester; courses
     return { x, i, state, to, pct, started: state === 'open' && done > 0, c };
   });
   const toUnlock = tiles.find((t) => t.state === 'locked')?.c;
+  // A licence or entrance programme has no semesters: its one group is just "Subjects" (studio, 2026-11-18).
+  const flat = sem.part === 'Subjects';
+  const name = flat ? 'Subjects' : `Semester ${sem.no}`;
   return (
     <section className="mt-[45px]">
       <div className="flex min-h-[76px] items-center gap-5 pl-3 max-sm:gap-3 max-sm:pl-0">
         <img src="/app/semester.webp" width={80} height={76} alt="" className="h-[76px] w-[80px] shrink-0 object-contain max-sm:h-14 max-sm:w-14" />
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-2">
-          <h2 title={sem.part} className="font-clash text-2xl font-medium leading-8 text-[#18251e] dark:font-sans dark:font-semibold dark:text-[#dae7e0] max-sm:text-xl">Semester {sem.no}</h2>
+          <h2 title={sem.part} className="font-clash text-2xl font-medium leading-8 text-[#18251e] dark:font-sans dark:font-semibold dark:text-[#dae7e0] max-sm:text-xl">{name}</h2>
           {toUnlock ? <UnlockPill slug={toUnlock.slug} sem={sem.no} count={sem.subjects.length} /> : null}
         </div>
-        <button type="button" onClick={onStar} aria-pressed={starred} aria-label={starred ? `Unstar semester ${sem.no}` : `Star semester ${sem.no}`} className="mr-[70px] cursor-pointer text-[#555] dark:text-[#bbb] max-md:mr-2">
+        <button type="button" onClick={onStar} aria-pressed={starred} aria-label={`${starred ? 'Unstar' : 'Star'} ${name.toLowerCase()}`} className="mr-[70px] cursor-pointer text-[#555] dark:text-[#bbb] max-md:mr-2">
           <Star on={starred} />
         </button>
       </div>
       <Tray>
         {tiles.map((t) => (
-          <Tile key={t.x.code} title={t.x.title} hint={t.x.code} icon={subjectIcon(t.x.title, t.i, t.x.icon)} state={t.state} to={t.to} pct={t.pct} started={t.started} />
+          <Tile key={`${t.x.code}-${t.i}`} title={t.x.title} hint={t.x.code} icon={subjectIcon(t.x.title, t.i, t.x.icon)} state={t.state} to={t.to} pct={t.pct} started={t.started} />
         ))}
       </Tray>
     </section>
