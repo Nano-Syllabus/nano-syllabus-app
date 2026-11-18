@@ -142,6 +142,9 @@ a.list-item:hover { background: var(--bg-soft); }
 .hero { padding: 56px 0 40px; }
 .hero p.lead { font-size: 1.15rem; color: var(--muted); max-width: 640px; }
 .features { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin: 40px 0; }
+@media (max-width: 560px) {
+  .hero { padding-left: 16px; padding-right: 16px; }
+}
 
 /* Skeletons: only for what is genuinely unknown. */
 .skeleton { background: var(--border); border-radius: 6px; animation: pulse 1.2s ease-in-out infinite; }

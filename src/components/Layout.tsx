@@ -19,14 +19,14 @@ export function Layout() {
       </TopNavShell>
     );
   }
-  return <PublicLayout />;
+  return <PublicLayout mobileExplore={pathname === '/courses'} />;
 }
 
-function PublicLayout() {
+function PublicLayout({ mobileExplore = false }: { mobileExplore?: boolean }) {
   const { user, logout } = useAuth();
   return (
     <>
-      <header className="sticky top-0 z-30 h-[60px] border-b border-[#e2ede5] bg-white/95 backdrop-blur dark:border-[#1b2c20] dark:bg-[#141414]/95">
+      <header className={'sticky top-0 z-30 h-[60px] border-b border-[#e2ede5] bg-white/95 backdrop-blur dark:border-[#1b2c20] dark:bg-[#141414]/95' + (mobileExplore ? ' max-sm:hidden' : '')}>
         <div className="mx-auto flex h-full w-[min(1384px,100%-32px)] items-center gap-6">
           <Link to="/" aria-label={`${SITE} home`} className="shrink-0">
             <img src="/app/ns-logo.webp" width={52} height={47} alt="" className="h-[47px] w-[52px] object-contain dark:brightness-0 dark:invert" />
@@ -50,7 +50,7 @@ function PublicLayout() {
         </div>
       </header>
       <Outlet />
-      <footer className="footer">
+      <footer className={'footer' + (mobileExplore ? ' max-sm:hidden' : '')}>
         <div className="wrap row">
           <span>© {new Date().getFullYear()} {SITE}</span>
           <span className="spacer" />
