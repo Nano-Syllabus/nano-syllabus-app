@@ -32,3 +32,17 @@ export const config: RuntimeConfig = {
   emailCodes: false,
   ...(typeof window !== 'undefined' ? window.__NS_CONFIG__ : undefined),
 };
+
+/** Vite dev mode does not run the server's HTML template, so fetch the public
+ * runtime flags from the Go server before React first renders. */
+export async function loadRuntimeConfig(): Promise<void> {
+  if (typeof window === 'undefined' || window.__NS_CONFIG__) return;
+  try {
+    const response = await fetch('/api/config');
+    if (!response.ok) return;
+    const runtime = await response.json() as Partial<RuntimeConfig>;
+    Object.assign(config, runtime);
+  } catch {
+    // Keep the dev defaults if the API or server is unavailable.
+  }
+}
