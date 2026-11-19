@@ -371,7 +371,7 @@ export function LiveLanding() {
                 Start now <span aria-hidden="true">↗</span>
               </a>
             </div>
-            <img className="ll-cta-img" src="/landing/cta-student.webp" width="586" height="391" alt="" loading="lazy" />
+            <img className="ll-cta-img" src="/landing/cta-student-v2.webp" width="586" height="391" alt="" loading="lazy" />
           </div>
         </section>
       </main>
