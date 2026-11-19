@@ -214,7 +214,17 @@ export function LiveLanding() {
                 <h3>Your goals.<br />One study space.</h3>
                 <p>You watch, you nod, you feel ready. Then the exam asks something slightly different, and the feeling disappears. Passive study leaves gaps you only find on exam day. We fix that.</p>
               </div>
-              <div className="ll-panel ll-panel-blue" aria-hidden="true" />
+              <video
+                className="ll-panel ll-panel-blue ll-preview-video"
+                src="/demo-video/nanosyllabus-demo.mp4"
+                poster="/landing/demo-poster.webp"
+                muted
+                loop
+                autoPlay
+                playsInline
+                preload="metadata"
+                aria-label="NanoSyllabus interactive lesson preview"
+              />
             </div>
           </div>
         </section>
@@ -357,7 +367,6 @@ export function LiveLanding() {
           <div className="ll-cta">
             <div className="ll-cta-copy">
               <h2>Your exam won't wait.<br />Start preparing the right way.</h2>
-              <p>Try your first micro-topic today. If it doesn't help, you've lost ten minutes.</p>
               <a href={START} className="ll-cta-btn">
                 Start now <span aria-hidden="true">↗</span>
               </a>

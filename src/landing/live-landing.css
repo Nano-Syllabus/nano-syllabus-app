@@ -164,6 +164,7 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 .ll-panel { height: 435px; border-radius: 29px; border: 2px solid; }
 .ll-panel-blue { background: #e4eff1; border-color: #dce2e2; }
 .ll-panel-sand { background: #f2ebe1; border-color: #dbd4ca; }
+.ll-preview-video { display: block; width: 100%; object-fit: cover; }
 
 .ll-problem { margin-top: 76px; padding: 30px 0 54px; }
 .ll-why { padding: 68px 0 105px; }
@@ -226,10 +227,10 @@ a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px soli
 /* closing call to action */
 .ll-cta-wrap { padding-top: 120px; }
 .ll-cta { position: relative; width: min(1320px, 100% - 32px); height: 377px; margin-inline: auto; border-radius: 28px; overflow: hidden; background: #e0f68e; box-shadow: 0 1px 2px rgb(0 0 0 / .1), 0 1px 3px rgb(0 0 0 / .1); }
-.ll-cta-copy { position: relative; z-index: 1; padding: 87px 0 0 64px; }
-.ll-cta h2 { text-transform: uppercase; font: 600 40px/48px "Bricolage Grotesque", sans-serif; letter-spacing: -1.07px; color: #172019; }
+.ll-cta-copy { position: relative; z-index: 1; padding: 85px 0 0 64px; }
+.ll-cta h2 { max-width: 620px; text-transform: uppercase; font: 600 40px/48px "Bricolage Grotesque", sans-serif; letter-spacing: -1.07px; color: #172019; }
 .ll-cta p { margin-top: 1px; font: 400 18px/34px Inter, sans-serif; color: #434447; }
-.ll-cta-btn { display: inline-flex; align-items: center; gap: 9px; margin-top: 36px; height: 58px; padding: 0 32px; border-radius: 16px; background: #1c1e1a; color: #fff; font: 600 15px/22.5px "DM Sans", sans-serif; transition: transform .12s; }
+.ll-cta-btn { display: inline-flex; align-items: center; gap: 9px; margin-top: 38px; height: 58px; padding: 0 32px; border-radius: 16px; background: #1c1e1a; color: #fff; font: 600 15px/22.5px "DM Sans", sans-serif; transition: transform .12s; }
 .ll-cta-btn span { font-weight: 700; font-size: 16px; }
 .ll-cta-btn:active { transform: scale(.97); }
 .ll-cta-img { position: absolute; left: 54.24%; top: 12px; width: 586px; height: auto; }
